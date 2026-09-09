@@ -3,590 +3,1645 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>أسواق البركة | Al-Barakah Markets</title>
+  <title>منصة أسواق البركة المتكاملة | Al-Barakah Supermarket Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- شريط التنقل العلوي -->
-  <header class="main-header">
-    <div class="container header-content">
-      <div class="brand-zone">
-        <div class="logo-icon">🌿</div>
+  <!-- شريط التنقل العلوي العام -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand-block" onclick="switchView('storefront')">
+        <div class="brand-logo">🌿</div>
         <div>
-          <h1 class="brand-title" data-ar="أسواق البركة" data-en="Al-Barakah Markets">أسواق البركة</h1>
-          <p class="brand-sub" data-ar="طازج يومياً وبأفضل سعر" data-en="Fresh daily at best prices">طازج يومياً وبأفضل سعر</p>
+          <h1 class="brand-name" data-ar="أسواق البركة" data-en="Al-Barakah Markets">أسواق البركة</h1>
+          <span class="brand-tagline" data-ar="التجزئة الذكية والهايبرماركت المتكامل" data-en="Smart Retail & Integrated Hypermarket">التجزئة الذكية والهايبرماركت المتكامل</span>
         </div>
       </div>
 
-      <!-- محرك البحث -->
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="ابحث بالاسم، الصنف أو الباركود..." data-ph-ar="ابحث بالاسم، الصنف أو الباركود..." data-ph-en="Search by name, category or barcode..." />
+      <!-- محرك البحث اللحظي -->
+      <div class="search-wrapper" id="globalSearchWrapper">
+        <input type="text" id="globalSearchInput" placeholder="ابحث بالاسم، الكود، الباركود (مثال: 622100...)" data-ph-ar="ابحث بالاسم، الكود، الباركود (مثال: 622100...)" data-ph-en="Search by name, SKU or barcode (e.g. 622100...)" oninput="handleSearch(this.value)" />
+        <button class="clear-search-btn" onclick="clearSearch()">&times;</button>
       </div>
 
-      <!-- عناصر التحكم: تبديل الواجهة واللغة والسلة -->
-      <div class="actions-zone">
-        <button id="viewToggleBtn" class="btn btn-secondary" onclick="toggleView()">
-          <span id="viewModeText" data-ar="شاشة الكاشير POS" data-en="Cashier POS View">شاشة الكاشير POS</span>
-        </button>
+      <!-- التنقل بين الشاشات واللغة -->
+      <div class="nav-controls">
+        <div class="view-switchers">
+          <button class="nav-btn active" id="btnViewStore" onclick="switchView('storefront')" data-ar="المتجر الإلكتروني" data-en="Storefront">المتجر الإلكتروني</button>
+          <button class="nav-btn" id="btnViewPos" onclick="switchView('pos')" data-ar="شاشة الكاشير POS" data-en="Cashier POS">شاشة الكاشير POS</button>
+          <button class="nav-btn" id="btnViewAdmin" onclick="switchView('admin')" data-ar="لوحة التحكم والمخزن" data-en="Admin & Inventory">لوحة التحكم والمخزن</button>
+        </div>
 
-        <button id="langToggleBtn" class="btn btn-outline" onclick="toggleLanguage()">
-          English
-        </button>
+        <button class="lang-btn" id="langSwitchBtn" onclick="toggleLanguage()">English</button>
 
-        <button id="cartBtn" class="btn btn-primary cart-trigger" onclick="toggleCartDrawer()">
+        <button class="cart-trigger-btn" onclick="toggleCartDrawer()">
           🛒 <span data-ar="السلة" data-en="Cart">السلة</span>
-          <span id="cartBadge" class="badge">0</span>
+          <span class="cart-count-badge" id="headerCartCount">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ================= واجهة المتجر للعملاء (STOREFRONT VIEW) ================= -->
-  <main id="storefrontView" class="view-section active">
+  <!-- ================= 1. واجهة المتجر الإلكتروني للعملاء ================= -->
+  <section id="viewStorefront" class="app-view active">
     <!-- البانر الترويجي -->
-    <section class="promo-hero">
-      <div class="container hero-card">
-        <div class="hero-text">
-          <span class="tag" data-ar="عروض التوفير الأسبوعية" data-en="Weekly Savings Deals">عروض التوفير الأسبوعية</span>
-          <h2 data-ar="أجود المنتجات الغذائية والمؤن الطازجة" data-en="Finest Groceries & Fresh Produce">أجود المنتجات الغذائية والمؤن الطازجة</h2>
-          <p data-ar="توصيل سريع مجاني للطلبات أكثر من 500 جنيه في كافة أنحاء القاهرة" data-en="Fast free delivery on orders over 500 EGP all across Cairo">توصيل سريع مجاني للطلبات أكثر من 500 جنيه في كافة أنحاء القاهرة</p>
+    <div class="hero-banner">
+      <div class="hero-content">
+        <div class="hero-text-side">
+          <span class="badge-tag" data-ar="مهرجان الطازج والتوفير" data-en="Fresh Festival & Mega Savings">مهرجان الطازج والتوفير</span>
+          <h2 data-ar="عروض يومية طازجة من المزارع إلى باب بيتك" data-en="Daily Fresh Groceries Delivered to Your Doorstep">عروض يومية طازجة من المزارع إلى باب بيتك</h2>
+          <p data-ar="توصيل مجاني للطلبات فوق 500 جنيه | ضمان استرجاع فوري للمنتجات الطازجة" data-en="Free express delivery on orders over 500 EGP | 100% Freshness Guaranteed">توصيل مجاني للطلبات فوق 500 جنيه | ضمان استرجاع فوري للمنتجات الطازجة</p>
         </div>
-        <div class="hero-sticker">
-          <span class="sticker-val">14%</span>
-          <span class="sticker-lbl" data-ar="ضريبة مشمولة" data-en="VAT Incl.">ضريبة مشمولة</span>
+        <div class="hero-badge-side">
+          <div class="saving-circle">
+            <span class="circle-val">14%</span>
+            <span class="circle-txt" data-ar="ضريبة مشمولة" data-en="VAT Included">ضريبة مشمولة</span>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- شريط تصفية الأقسام -->
-    <section class="container categories-bar">
-      <button class="cat-pill active" onclick="filterCategory('ALL')" data-ar="جميع الأقسام" data-en="All Categories">جميع الأقسام</button>
-      <button class="cat-pill" onclick="filterCategory('DAIRY')" data-ar="الألبان والبيض" data-en="Dairy & Eggs">الألبان والبيض</button>
-      <button class="cat-pill" onclick="filterCategory('PANTRY')" data-ar="المؤن والأرز والزيوت" data-en="Pantry & Oils">المؤن والأرز والزيوت</button>
-      <button class="cat-pill" onclick="filterCategory('MEAT')" data-ar="اللحوم والدواجن" data-en="Meat & Butchery">اللحوم والدواجن</button>
-      <button class="cat-pill" onclick="filterCategory('BEVERAGE')" data-ar="المشروبات والشاي" data-en="Beverages & Tea">المشروبات والشاي</button>
-    </section>
+    <!-- تصفية الأقسام -->
+    <div class="category-filters-container">
+      <div class="category-scroll" id="categoryTabs">
+        <button class="cat-chip active" onclick="filterByDepartment('ALL')" data-ar="جميع الأقسام (20)" data-en="All Categories (20)">جميع الأقسام (20)</button>
+        <button class="cat-chip" onclick="filterByDepartment('DAIRY')" data-ar="الألبان والأجبان" data-en="Dairy & Cheese">الألبان والأجبان</button>
+        <button class="cat-chip" onclick="filterByDepartment('PANTRY')" data-ar="المؤن والزيوت والبقوليات" data-en="Pantry & Cooking">المؤن والزيوت والبقوليات</button>
+        <button class="cat-chip" onclick="filterByDepartment('MEAT')" data-ar="اللحوم البلدية والدواجن" data-en="Meat & Butchery">اللحوم البلدية والدواجن</button>
+        <button class="cat-chip" onclick="filterByDepartment('BAKERY')" data-ar="المخبوزات والحلويات" data-en="Fresh Bakery">المخبوزات والحلويات</button>
+        <button class="cat-chip" onclick="filterByDepartment('BEVERAGES')" data-ar="المشروبات والقهوة" data-en="Beverages & Coffee">المشروبات والقهوة</button>
+        <button class="cat-chip" onclick="filterByDepartment('CLEANING')" data-ar="المنظفات والعناية" data-en="Household & Cleaning">المنظفات والعناية</button>
+      </div>
+    </div>
 
     <!-- شبكة المنتجات -->
-    <section class="container products-section">
-      <div id="productsGrid" class="products-grid">
-        <!-- يتم تعبئة المنتجات تلقائياً عبر JavaScript -->
+    <div class="main-products-container">
+      <div class="products-header">
+        <h3 id="departmentTitleDisplay" data-ar="عرض كافة المنتجات المتاحة" data-en="Displaying All Available Products">عرض كافة المنتجات المتاحة</h3>
+        <span class="result-count" id="productResultsCount">20 صنف</span>
       </div>
-    </section>
-  </main>
+      <div class="products-grid" id="storefrontGrid">
+        <!-- يعبأ آلياً عبر محرك الجافاسكربت -->
+      </div>
+    </div>
+  </section>
 
-  <!-- ================= واجهة الكاشير ونقطة البيع (POS TERMINAL VIEW) ================= -->
-  <main id="posView" class="view-section">
-    <div class="pos-container">
-      <!-- لوحة الفاتورة الحالية -->
-      <section class="pos-receipt-panel">
-        <div class="pos-header">
+  <!-- ================= 2. شاشة الكاشير ونقطة البيع (POS TERMINAL) ================= -->
+  <section id="viewPos" class="app-view">
+    <div class="pos-layout">
+      <!-- اللوحة اليسرى: مسح الباركود، الفاتورة الحالية، والحساب المالي -->
+      <div class="pos-bill-column">
+        <div class="pos-status-bar">
           <div>
-            <h2 data-ar="نقطة البيع السريعة" data-en="POS Cashier Terminal">نقطة البيع السريعة</h2>
-            <p class="pos-meta" data-ar="فرع المعادي | كاشير: أحمد إبراهيم" data-en="Maadi Branch | Cashier: Ahmed Ibrahim">فرع المعادي | كاشير: أحمد إبراهيم</p>
+            <h2 data-ar="نقطة البيع - فرع المعادي (وردية #401)" data-en="POS Terminal - Maadi Branch (Shift #401)">نقطة البيع - فرع المعادي (وردية #401)</h2>
+            <span class="pos-cashier-name" data-ar="الكاشير: محمود حسني | التاريخ: 2026/09/09" data-en="Cashier: Mahmoud Hosni | 2026/09/09">الكاشير: محمود حسني | التاريخ: 2026/09/09</span>
           </div>
-          <button class="btn btn-sm btn-danger" onclick="clearPosCart()" data-ar="إلغاء الفاتورة" data-en="Cancel Bill">إلغاء الفاتورة</button>
+          <div class="pos-header-actions">
+            <button class="btn btn-warning btn-sm" onclick="holdCurrentBill()" data-ar="تعليق (F4)" data-en="Hold (F4)">تعليق (F4)</button>
+            <button class="btn btn-outline-light btn-sm" onclick="showRecallModal()" data-ar="المعلقات" data-en="Recall">المعلقات (<span id="heldCount">0</span>)</button>
+            <button class="btn btn-danger btn-sm" onclick="resetPosBill()" data-ar="إلغاء" data-en="Clear">إلغاء</button>
+          </div>
         </div>
 
-        <!-- إدخال الباركود السريع -->
-        <form class="barcode-form" onsubmit="handleBarcodeScan(event)">
-          <input type="text" id="barcodeInput" placeholder="امسح الباركود أو اضغط Enter..." data-ph-ar="امسح الباركود أو اضغط Enter..." data-ph-en="Scan barcode and press Enter..." autofocus />
-          <button type="submit" class="btn btn-primary" data-ar="مسح" data-en="Scan">مسح</button>
+        <!-- حقل إدخال الباركود السريع للكاشير -->
+        <form class="pos-barcode-bar" onsubmit="handlePosBarcodeSubmit(event)">
+          <div class="barcode-input-container">
+            <span class="barcode-icon">▌│█║▌║▌│║</span>
+            <input type="text" id="posBarcodeInput" placeholder="امسح الباركود بجهاز الليزر أو اكتب الكود ثم Enter..." data-ph-ar="امسح الباركود بجهاز الليزر أو اكتب الكود ثم Enter..." data-ph-en="Scan with barcode scanner or enter SKU..." autofocus />
+          </div>
+          <button type="submit" class="btn btn-primary" data-ar="إدراج الصنف" data-en="Add Item">إدراج الصنف</button>
         </form>
 
-        <!-- جدول الأصناف في نقطة البيع -->
-        <div class="pos-table-wrap">
+        <!-- جدول بنود الفاتورة الحالية -->
+        <div class="pos-items-table-scroll">
           <table class="pos-table">
             <thead>
               <tr>
                 <th data-ar="الصنف" data-en="Item">الصنف</th>
-                <th data-ar="الكمية" data-en="Qty">الكمية</th>
-                <th data-ar="السعر" data-en="Price">السعر</th>
-                <th data-ar="الإجمالي" data-en="Total">الإجمالي</th>
-                <th></th>
+                <th class="text-center" data-ar="الكمية" data-en="Qty">الكمية</th>
+                <th class="text-end" data-ar="السعر" data-en="Price">السعر</th>
+                <th class="text-end" data-ar="الإجمالي" data-en="Total">الإجمالي</th>
+                <th class="text-center">✕</th>
               </tr>
             </thead>
-            <tbody id="posItemsBody">
-              <!-- أسطر المشتريات -->
+            <tbody id="posTableBody">
+              <!-- أسطر فاتورة الكاشير الحية -->
             </tbody>
           </table>
         </div>
 
-        <!-- تفاصيل الدفع والحساب -->
-        <div class="pos-summary">
-          <div class="summary-row">
-            <span data-ar="الإجمالي المستحق:" data-en="Grand Total:">الإجمالي المستحق:</span>
-            <span id="posTotalAmount" class="highlight-val">0.00 ج.م</span>
-          </div>
-          <div class="pos-payment-actions">
-            <div class="calc-box">
-              <label data-ar="المبلغ المستلم من العميل:" data-en="Cash Received:">المبلغ المستلم من العميل:</label>
-              <input type="number" id="cashReceivedInput" placeholder="0.00" oninput="calcPosChange()" />
+        <!-- ملخص الحسابات النقدية والخصومات -->
+        <div class="pos-bottom-checkout">
+          <div class="pos-totals-panel">
+            <div class="tot-row">
+              <span data-ar="عدد الأصناف المباعة:" data-en="Total Items Count:">عدد الأصناف المباعة:</span>
+              <strong id="posTotalQtyCount">0 قطع</strong>
             </div>
-            <div class="calc-box">
-              <label data-ar="المتبقي (الفكة):" data-en="Change Due:">المتبقي (الفكة):</label>
-              <div id="posChangeDue" class="change-val">0.00 ج.م</div>
+            <div class="tot-row main-total">
+              <span data-ar="الإجمالي النهائي المستحق:" data-en="Grand Total Due:">الإجمالي النهائي المستحق:</span>
+              <span class="pos-final-price" id="posGrandTotal">0.00 ج.م</span>
             </div>
           </div>
-          <button class="btn btn-success btn-block" onclick="completePosOrder()" data-ar="إنهاء الفاتورة وطباعة الإيصال (F12)" data-en="Complete Order & Print (F12)">
-            إنهاء الفاتورة وطباعة الإيصال (F12)
-          </button>
-        </div>
-      </section>
 
-      <!-- لوحة الأصناف السريعة للكاشير -->
-      <section class="pos-quick-items">
-        <h3 data-ar="أصناف سريعة النقر" data-en="Quick Pick Items">أصناف سريعة النقر</h3>
-        <div id="posQuickGrid" class="quick-grid">
-          <!-- أزرار الأصناف الأكثر مبيعاً -->
-        </div>
-      </section>
-    </div>
-  </main>
+          <!-- حساب المستلم من العميل وحساب الباقي -->
+          <div class="pos-tender-row">
+            <div class="tender-input-box">
+              <label data-ar="المبلغ النقدي المستلم من المشتري:" data-en="Cash Received:">المبلغ النقدي المستلم من المشتري:</label>
+              <input type="number" step="0.5" id="posCashTendered" placeholder="0.00" oninput="calculatePosChange()" />
+            </div>
+            <div class="change-output-box">
+              <label data-ar="المتبقي للعميل (الفكة المستحقة):" data-en="Change Due:">المتبقي للعميل (الفكة المستحقة):</label>
+              <div class="change-amount-display" id="posChangeDisplay">0.00 ج.م</div>
+            </div>
+          </div>
 
-  <!-- درج سلة المشتريات (Cart Drawer) -->
-  <div id="cartDrawer" class="cart-drawer">
-    <div class="drawer-header">
-      <h3 data-ar="سلة مشترياتك" data-en="Your Cart">سلة مشترياتك</h3>
-      <button class="close-btn" onclick="toggleCartDrawer()">&times;</button>
+          <div class="pos-action-btns">
+            <button class="btn btn-outline-light" onclick="setExactCash()" data-ar="المبلغ مضبوط تماماً" data-en="Exact Cash">المبلغ مضبوط تماماً</button>
+            <button class="btn btn-success btn-lg flex-1" onclick="finalizePosTransaction()" data-ar="إنهاء وحفظ المعاملة وطباعة الإيصال (F12)" data-en="Complete & Print Thermal Bill (F12)">
+              إنهاء وحفظ المعاملة وطباعة الإيصال (F12)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- اللوحة اليمنى: أزرار النقر السريع للمنتجات الأكثر مبيعاً -->
+      <div class="pos-quick-column">
+        <div class="quick-title-bar">
+          <h3 data-ar="قائمة الأصناف السريعة (لمس / كاشير)" data-en="Quick Touch Categories">قائمة الأصناف السريعة (لمس / كاشير)</h3>
+        </div>
+        <div class="pos-quick-grid" id="posQuickGrid">
+          <!-- بطاقات سريعة للمنتجات -->
+        </div>
+      </div>
     </div>
-    <div id="cartItemsList" class="drawer-items">
-      <!-- عناصر السلة -->
+  </section>
+
+  <!-- ================= 3. لوحة تحكم الإدارة وتعديل المخزون والأسعار (ADMIN) ================= -->
+  <section id="viewAdmin" class="app-view">
+    <div class="admin-container">
+      <!-- مؤشرات الأداء الحية (KPIs) -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-icon">💰</span>
+          <div>
+            <span class="kpi-label" data-ar="إجمالي المبيعات المسجلة" data-en="Total Gross Sales">إجمالي المبيعات المسجلة</span>
+            <h3 class="kpi-value" id="adminTotalRevenue">0.00 ج.م</h3>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">🧾</span>
+          <div>
+            <span class="kpi-label" data-ar="عدد الفواتير المنفذة" data-en="Orders & Receipts">عدد الفواتير المنفذة</span>
+            <h3 class="kpi-value" id="adminTotalOrders">0 فاتورة</h3>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon">📦</span>
+          <div>
+            <span class="kpi-label" data-ar="إجمالي الأصناف بالكتالوج" data-en="Total Catalog SKUs">إجمالي الأصناف بالكتالوج</span>
+            <h3 class="kpi-value" id="adminTotalSkus">20 صنف</h3>
+          </div>
+        </div>
+        <div class="kpi-card alert">
+          <span class="kpi-icon">⚠️</span>
+          <div>
+            <span class="kpi-label" data-ar="أصناف قاربت على النفاد (< 20)" data-en="Low Stock Alerts (< 20)">أصناف قاربت على النفاد (&lt; 20)</span>
+            <h3 class="kpi-value" id="adminLowStockCount">0 أصناف</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- جدول إدارة المخزون والتسعير المباشر -->
+      <div class="admin-table-panel">
+        <div class="admin-table-header">
+          <div>
+            <h3 data-ar="سجل إدارة المخزون وضبط أسعار البيع المباشر" data-en="Master Inventory & Price Control Ledger">سجل إدارة المخزون وضبط أسعار البيع المباشر</h3>
+            <p data-ar="التعديلات هنا تحدث فورياً وتنعكس على المتجر وشاشة الكاشير وتحفظ بمتصفحك." data-en="Changes reflect live in Storefront & POS and persist in LocalStorage.">التعديلات هنا تحدث فورياً وتنعكس على المتجر وشاشة الكاشير وتحفظ بمتصفحك.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="resetDatabaseToDefault()" data-ar="استعادة البيانات الأصلية المصنعية" data-en="Reset to Default DB">استعادة البيانات الأصلية المصنعية</button>
+        </div>
+
+        <div class="admin-table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th data-ar="الباركود" data-en="Barcode">الباركود</th>
+                <th data-ar="الصنف" data-en="Product">الصنف</th>
+                <th data-ar="القسم" data-en="Department">القسم</th>
+                <th data-ar="سعر البيع (ج.م)" data-en="Price (EGP)">سعر البيع (ج.م)</th>
+                <th data-ar="الكمية الحالية" data-en="Current Stock">الكمية الحالية</th>
+                <th data-ar="حالة الرصيد" data-en="Stock Status">حالة الرصيد</th>
+                <th data-ar="إجراء سريع" data-en="Quick Adjustment">إجراء سريع</th>
+              </tr>
+            </thead>
+            <tbody id="adminInventoryTableBody">
+              <!-- صفوف جرد المنتجات -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="drawer-footer">
-      <div class="summary-row">
+  </section>
+
+  <!-- ================= درج عربة التسوق للمتجر (CART DRAWER) ================= -->
+  <div class="cart-drawer-overlay" id="cartOverlay" onclick="toggleCartDrawer()"></div>
+  <aside class="cart-drawer-panel" id="cartDrawer">
+    <div class="drawer-header-block">
+      <div>
+        <h3 data-ar="سلة مشترياتك" data-en="Your Grocery Basket">سلة مشترياتك</h3>
+        <span class="drawer-items-count" id="drawerTotalItemsCount">0 منتجات مختارة</span>
+      </div>
+      <button class="close-drawer-btn" onclick="toggleCartDrawer()">&times;</button>
+    </div>
+
+    <!-- تنبيه الشحن المجاني التفاعلي -->
+    <div class="free-shipping-progress" id="freeShippingBanner">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="shippingProgressFill" style="width: 0%;"></div></div>
+      <p class="shipping-hint" id="shippingHintText" data-ar="أضف بـ 500 ج.م للحصول على شحن مجاني" data-en="Add 500 EGP for Free Shipping">أضف بـ 500 ج.م للحصول على شحن مجاني</p>
+    </div>
+
+    <div class="drawer-items-list" id="drawerCartItems">
+      <!-- أسطر سلة المتجر -->
+    </div>
+
+    <div class="drawer-footer-block">
+      <div class="summary-line">
         <span data-ar="المجموع الفرعي:" data-en="Subtotal:">المجموع الفرعي:</span>
-        <span id="drawerSubtotal">0.00 ج.م</span>
+        <strong id="drawerSubtotalPrice">0.00 ج.م</strong>
       </div>
-      <div class="summary-row">
-        <span data-ar="شامل القيمة المضافة (14%):" data-en="VAT (14% Included):">شامل القيمة المضافة (14%):</span>
-        <span id="drawerVat">0.00 ج.م</span>
+      <div class="summary-line">
+        <span data-ar="ضريبة القيمة المضافة مشمولة (14%):" data-en="14% VAT Included:">ضريبة القيمة المضافة مشمولة (14%):</span>
+        <span id="drawerVatAmount">0.00 ج.م</span>
       </div>
-      <div class="summary-row">
-        <span data-ar="رسوم التوصيل:" data-en="Delivery Fee:">رسوم التوصيل:</span>
-        <span id="drawerDelivery">0.00 ج.م</span>
+      <div class="summary-line">
+        <span data-ar="رسوم التوصيل السريع:" data-en="Delivery Fee:">رسوم التوصيل السريع:</span>
+        <span id="drawerShippingFee">0.00 ج.م</span>
       </div>
-      <div class="summary-row total">
-        <span data-ar="الإجمالي النهائي:" data-en="Total Amount:">الإجمالي النهائي:</span>
-        <span id="drawerTotal">0.00 ج.م</span>
+      <div class="summary-line total-grand">
+        <span data-ar="المبلغ الإجمالي للدفع:" data-en="Grand Total:">المبلغ الإجمالي للدفع:</span>
+        <span id="drawerGrandTotalPrice">0.00 ج.م</span>
       </div>
-      <button class="btn btn-primary btn-block" onclick="checkoutStoreOrder()" data-ar="تأكيد الطلب والدفع" data-en="Proceed to Checkout">
-        تأكيد الطلب والدفع
-      </button>
+      <button class="btn btn-primary btn-block checkout-btn" onclick="openCheckoutModal()" data-ar="متابعة الشراء وتأكيد العنوان" data-en="Proceed to Checkout">متابعة الشراء وتأكيد العنوان</button>
+    </div>
+  </aside>
+
+  <!-- ================= نافذة المعاينة السريعة والقيمة الغذائية (MODAL) ================= -->
+  <div class="modal-overlay" id="quickViewModal">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" onclick="closeQuickViewModal()">&times;</button>
+      <div class="modal-body-layout" id="quickViewContent">
+        <!-- يعبأ بالتفاصيل الغذائية ديناميكياً -->
+      </div>
     </div>
   </div>
-  <div id="drawerOverlay" class="drawer-overlay" onclick="toggleCartDrawer()"></div>
 
-  <!-- التنبيهات السريعة (Toasts) -->
-  <div id="toast" class="toast"></div>
+  <!-- ================= نافذة إنهاء الطلب للعميل (CHECKOUT MODAL) ================= -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-dialog max-w-lg">
+      <button class="modal-close-btn" onclick="closeCheckoutModal()">&times;</button>
+      <div class="checkout-form-container">
+        <h3 data-ar="بيانات الاستلام والتوصيل المنزلي" data-en="Delivery Address & Scheduling">بيانات الاستلام والتوصيل المنزلي</h3>
+        <form onsubmit="confirmCustomerOrder(event)">
+          <div class="form-group">
+            <label data-ar="الاسم بالكامل:" data-en="Full Name:">الاسم بالكامل:</label>
+            <input type="text" required placeholder="أحمد محمد" id="chkCustName" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-ar="رقم الهاتف للتواصل:" data-en="Phone:">رقم الهاتف للتواصل:</label>
+              <input type="tel" required placeholder="01012345678" id="chkCustPhone" />
+            </div>
+            <div class="form-group">
+              <label data-ar="المنطقة / الحي:" data-en="District:">المنطقة / الحي:</label>
+              <select id="chkCustDistrict">
+                <option value="Maadi">المعادي الجديدة / المعادي</option>
+                <option value="NasrCity">مدينة نصر</option>
+                <option value="Tagamoa">التجمع والخامس</option>
+                <option value="Zamalek">الزمالك والمهندسين</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-ar="العنوان التفصيلي (شارع، عمارة، شقة):" data-en="Address:">العنوان التفصيلي (شارع، عمارة، شقة):</label>
+            <input type="text" required placeholder="شارع النصر، عمارة 12، الدور الرابع" id="chkCustAddress" />
+          </div>
+          <div class="form-group">
+            <label data-ar="الفترة الزمنية المفضلة لوصول الطلب:" data-en="Delivery Slot:">الفترة الزمنية المفضلة لوصول الطلب:</label>
+            <select id="chkCustSlot">
+              <option value="now">توصيل فوري سريع (خلال 45 دقيقة)</option>
+              <option value="afternoon">الفترة المسائية (من 4:00 عصراً إلى 7:00 مساءً)</option>
+              <option value="evening">الفترة الليلية (من 8:00 مساءً إلى 11:00 مساءً)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-ar="طريقة السداد:" data-en="Payment Method:">طريقة السداد:</label>
+            <select id="chkPaymentType">
+              <option value="cod">الدفع عند الاستلام نقداً (Cash on Delivery)</option>
+              <option value="pos_delivery">الدفع بالبطاقة مع المندوب (POS Machine)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success btn-block btn-lg mt-3" data-ar="تأكيد إرسال الطلب الآن" data-en="Submit & Place Order">تأكيد إرسال الطلب الآن</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
-  <!-- المنطق البرمجي الكامل للتحكم والمزامنة -->
+  <!-- ================= نافذة استرجاع الفواتير المعلقة بالكاشير ================= -->
+  <div class="modal-overlay" id="recallModal">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" onclick="closeRecallModal()">&times;</button>
+      <h3 data-ar="الفواتير المعلقة في نقطة البيع" data-en="Held POS Transactions">الفواتير المعلقة في نقطة البيع</h3>
+      <div class="held-bills-list" id="heldBillsContainer">
+        <!-- يعبأ بالفواتير المحفوظة مؤقتاً -->
+      </div>
+    </div>
+  </div>
+
+  <!-- تنبيهات التوست السريعة -->
+  <div class="toast-popup" id="toastBox"></div>
+
+  <!-- سكربت المحرك البرمجي المتكامل -->
   <script>
-    // قاعدة بيانات الأصناف الحقيقية للسوبرماركت
-    const productsDB = [
+    /* ==========================================================================
+       قاعدة البيانات المركزية الافتراضية لأسواق البركة (20 صنف متكامل)
+       ========================================================================== */
+    const DEFAULT_PRODUCTS = [
+      // 1. الألبان والأجبان (DAIRY)
       {
         id: 1,
         barcode: "6221007001015",
-        sku: "JUH-MILK-1L",
+        sku: "DAI-JUH-01",
+        dept: "DAIRY",
         nameAr: "حليب جهينة كامل الدسم معقم 1 لتر",
-        nameEn: "Juhayna Pure Full Cream Milk 1L",
-        category: "DAIRY",
-        brand: "جهينة / Juhayna",
+        nameEn: "Juhayna Full Cream UHT Milk 1L",
+        brandAr: "جهينة",
+        brandEn: "Juhayna",
+        unitAr: "عبوة 1 لتر",
+        unitEn: "1L Bottle",
         price: 44.50,
         oldPrice: 48.00,
-        unitAr: "عبوة 1 لتر",
-        unitEn: "1L Pack",
-        img: "🥛",
-        stock: 65
+        stock: 120,
+        icon: "🥛",
+        nutrition: { cal: "62 ك.سعرة", protein: "3.2 جم", fat: "3.5 جم", carb: "4.7 جم" },
+        descAr: "حليب بقري نقي 100% معقم بأحدث التقنيات للحفاظ على المذاق الطازج والقيمة الغذائية الكاملة.",
+        descEn: "100% pure cow milk, ultra-heat treated to preserve fresh farm taste and vitamins."
       },
       {
         id: 2,
-        barcode: "6223000551020",
-        sku: "DOH-RICE-1KG",
-        nameAr: "أرز مصري فاخر الضحى 1 كجم",
-        nameEn: "El Doha Premium Egyptian Rice 1kg",
-        category: "PANTRY",
-        brand: "الضحى / El Doha",
-        price: 39.00,
-        oldPrice: null,
-        unitAr: "كيس 1 كجم",
-        unitEn: "1kg Bag",
-        img: "🍚",
-        stock: 120
+        barcode: "6221008003030",
+        sku: "DAI-DOM-02",
+        dept: "DAIRY",
+        nameAr: "جبنة دومتي بلس فيتا نباتي الدهن 500 جم",
+        nameEn: "Domty Plus Feta White Cheese 500g",
+        brandAr: "دومتي",
+        brandEn: "Domty",
+        unitAr: "علبة 500 جم",
+        unitEn: "500g Pack",
+        price: 36.50,
+        oldPrice: 40.00,
+        stock: 85,
+        icon: "🧀",
+        nutrition: { cal: "220 ك.سعرة", protein: "8.5 جم", fat: "17 جم", carb: "4.2 جم" },
+        descAr: "جبنة بيضاء ناعمة غنية وسهلة الفرد، مثالية للإفطار اليومي والساندوتشات المدرسية.",
+        descEn: "Smooth and creamy feta cheese, perfect for breakfast spreads and fresh salads."
       },
       {
         id: 3,
-        barcode: "6221155008901",
-        sku: "CRY-CORN-1.6L",
-        nameAr: "زيت ذرة كريستال نقي 1.6 لتر",
-        nameEn: "Crystal Pure Corn Oil 1.6L",
-        category: "PANTRY",
-        brand: "كريستال / Crystal",
-        price: 125.00,
-        oldPrice: 138.00,
-        unitAr: "زجاجة 1.6 لتر",
-        unitEn: "1.6L Bottle",
-        img: "🌻",
-        stock: 35
+        barcode: "6222005001122",
+        sku: "DAI-MAR-03",
+        dept: "DAIRY",
+        nameAr: "زبادي المراعي طبيعي طازج 105 جم (عرض 6 علب)",
+        nameEn: "Almarai Fresh Natural Plain Yoghurt 105g (6-Pack)",
+        brandAr: "المراعي",
+        brandEn: "Almarai",
+        unitAr: "مجموعة 6 علب",
+        unitEn: "Pack of 6",
+        price: 42.00,
+        oldPrice: 48.00,
+        stock: 60,
+        icon: "🥣",
+        nutrition: { cal: "65 ك.سعرة", protein: "4.0 جم", fat: "3.0 جم", carb: "5.5 جم" },
+        descAr: "زبادي طبيعي منعش يساعد على الهضم ويمنح الجسم الطاقة والتوازن الصحي.",
+        descEn: "Pure fresh yoghurt packed with probiotics for optimal digestive health."
       },
       {
         id: 4,
-        barcode: "6229000123456",
-        sku: "BEEF-CUBES-1KG",
-        nameAr: "مكعبات لحم بقري بلدي طازج 1 كجم",
-        nameEn: "Fresh Baladi Beef Stew Cubes 1kg",
-        category: "MEAT",
-        brand: "مزارع البركة / Al-Barakah",
-        price: 440.00,
-        oldPrice: 470.00,
-        unitAr: "كيلوجرام",
-        unitEn: "Per Kilogram",
-        img: "🥩",
-        stock: 18
+        barcode: "6229000101010",
+        sku: "DAI-EGG-04",
+        dept: "DAIRY",
+        nameAr: "طبق بيض أحمر مزارع البركة طازج (30 بيضة)",
+        nameEn: "Al-Barakah Fresh Farm Red Eggs (30-Pack)",
+        brandAr: "مزارع البركة",
+        brandEn: "Al-Barakah Farms",
+        unitAr: "كرتونة 30 بيضة",
+        unitEn: "Tray 30 Eggs",
+        price: 165.00,
+        oldPrice: null,
+        stock: 40,
+        icon: "🥚",
+        nutrition: { cal: "72 ك.سعرة / بيضة", protein: "6.3 جم", fat: "4.8 جم", carb: "0.4 جم" },
+        descAr: "بيض مزارع منتقى بعناية ومغذي، يتم توريده يومياً من مزارعنا مباشرة.",
+        descEn: "Farm fresh red eggs packed with high-quality protein and essential minerals."
       },
+
+      // 2. المؤن والزيوت والبقوليات (PANTRY)
       {
         id: 5,
-        barcode: "6224000112233",
-        sku: "AROSA-TEA-250G",
-        nameAr: "شاي أسود ناعم العروسة 250 جم",
-        nameEn: "El Arosa Fine Black Tea 250g",
-        category: "BEVERAGE",
-        brand: "العروسة / El Arosa",
-        price: 52.00,
-        oldPrice: null,
-        unitAr: "عبوة 250 جم",
-        unitEn: "250g Pack",
-        img: "☕",
-        stock: 80
+        barcode: "6223000551020",
+        sku: "PAN-DOH-01",
+        dept: "PANTRY",
+        nameAr: "أرز مصري فاخر عريض الحبة الضحى 1 كجم",
+        nameEn: "El Doha Premium Egyptian Rice 1kg",
+        brandAr: "الضحى",
+        brandEn: "El Doha",
+        unitAr: "كيس 1 كجم",
+        unitEn: "1kg Bag",
+        price: 39.50,
+        oldPrice: 44.00,
+        stock: 250,
+        icon: "🍚",
+        nutrition: { cal: "130 ك.سعرة", protein: "2.7 جم", fat: "0.3 جم", carb: "28 جم" },
+        descAr: "أرز مصري مغسول ومنقى آلياً 100% بدون أي شوائب، جاهز للطهي الفوري.",
+        descEn: "Pre-washed, machine-cleaned long grain Egyptian rice ready for direct cooking."
       },
       {
         id: 6,
-        barcode: "6221008003030",
-        sku: "DOM-CHEESE-500G",
-        nameAr: "جبنة دومتي بلس فيتا 500 جم",
-        nameEn: "Domty Plus Feta Cheese 500g",
-        category: "DAIRY",
-        brand: "دومتي / Domty",
+        barcode: "6221155008901",
+        sku: "PAN-CRY-02",
+        dept: "PANTRY",
+        nameAr: "زيت ذرة نقي 100% كريستال 1.6 لتر",
+        nameEn: "Crystal Pure Corn Cooking Oil 1.6L",
+        brandAr: "كريستال",
+        brandEn: "Crystal",
+        unitAr: "زجاجة 1.6 لتر",
+        unitEn: "1.6L Bottle",
+        price: 128.00,
+        oldPrice: 140.00,
+        stock: 95,
+        icon: "🌻",
+        nutrition: { cal: "120 ك.سعرة / ملعقة", protein: "0 جم", fat: "14 جم", carb: "0 جم" },
+        descAr: "زيت طهي ذهبي خفيف وصحي غني بأوميجا 6، مثالي للتحمير الصحي الخفيف.",
+        descEn: "Pure light corn oil ideal for frying, baking and dressing salads without cholesterol."
+      },
+      {
+        id: 7,
+        barcode: "6221200003021",
+        sku: "PAN-REG-03",
+        dept: "PANTRY",
+        nameAr: "مكرونة ريجينا فرن فاخرة سميد القمح 400 جم",
+        nameEn: "Regina Penne Rigate Durum Wheat Pasta 400g",
+        brandAr: "ريجينا",
+        brandEn: "Regina",
+        unitAr: "كيس 400 جم",
+        unitEn: "400g Pack",
+        price: 21.00,
+        oldPrice: null,
+        stock: 140,
+        icon: "🍝",
+        nutrition: { cal: "350 ك.سعرة", protein: "12 جم", fat: "1.5 جم", carb: "72 جم" },
+        descAr: "مصنوعة من سيمولينا قمح الديورم الإيطالي الصلب 100% التي تحافظ على تماسكها عند الطهي.",
+        descEn: "Made from 100% pure durum wheat semolina for perfect al dente texture."
+      },
+      {
+        id: 8,
+        barcode: "6221004008812",
+        sku: "PAN-OSM-04",
+        dept: "PANTRY",
+        nameAr: "سكر أبيض نقي فاخر الأسرة 1 كجم",
+        nameEn: "El Osra Pure White Crystal Sugar 1kg",
+        brandAr: "الأسرة",
+        brandEn: "El Osra",
+        unitAr: "كيس 1 كجم",
+        unitEn: "1kg Bag",
         price: 36.00,
-        oldPrice: 40.00,
-        unitAr: "علبة 500 جم",
-        unitEn: "500g Box",
-        img: "🧀",
-        stock: 45
+        oldPrice: null,
+        stock: 180,
+        icon: "🍬",
+        nutrition: { cal: "387 ك.سعرة", protein: "0 جم", fat: "0 جم", carb: "100 جم" },
+        descAr: "سكر أبيض كريستالي ناصع وسريع الذوبان للمشروبات والحلويات المنزلية.",
+        descEn: "High-grade pure white crystal sugar for sweetening tea, coffee and baking."
+      },
+      {
+        id: 9,
+        barcode: "6223000551099",
+        sku: "PAN-FUL-05",
+        dept: "PANTRY",
+        nameAr: "فول تدميس بلدي منقى الضحى 500 جم",
+        nameEn: "El Doha Egyptian Fava Beans 500g",
+        brandAr: "الضحى",
+        brandEn: "El Doha",
+        unitAr: "كيس 500 جم",
+        unitEn: "500g Bag",
+        price: 34.00,
+        oldPrice: null,
+        stock: 75,
+        icon: "🍲",
+        nutrition: { cal: "110 ك.سعرة", protein: "7.6 جم", fat: "0.5 جم", carb: "19 جم" },
+        descAr: "حبات فول بلدي درجة أولى عريضة وسريعة النضج للتدميس في المنزل.",
+        descEn: "Selected grade-A Egyptian fava beans for authentic home-cooked ful medames."
+      },
+
+      // 3. اللحوم والدواجن (MEAT)
+      {
+        id: 10,
+        barcode: "6229000123456",
+        sku: "MEA-KND-01",
+        dept: "MEAT",
+        nameAr: "مكعبات لحم بقري بلدي أحمر طازج 1 كجم",
+        nameEn: "Fresh Egyptian Baladi Beef Stew Cubes 1kg",
+        brandAr: "مزارع البركة",
+        brandEn: "Al-Barakah Butchery",
+        unitAr: "كيلوجرام",
+        unitEn: "1 Kilogram",
+        price: 440.00,
+        oldPrice: 470.00,
+        stock: 22,
+        icon: "🥩",
+        nutrition: { cal: "240 ك.سعرة", protein: "26 جم", fat: "14 جم", carb: "0 جم" },
+        descAr: "لحم بقري بلدي من صغار العجول المذبوحة محلياً، مقطع خالي من الشغت ومناسب للخضار.",
+        descEn: "Prime cuts of fresh local Egyptian beef, hand-trimmed daily by master butchers."
+      },
+      {
+        id: 11,
+        barcode: "6229000123463",
+        sku: "MEA-MNC-02",
+        dept: "MEAT",
+        nameAr: "مفروم لحم بقري بلدي قليل الدهن 1 كجم",
+        nameEn: "Fresh Minced Baladi Beef Lean 1kg",
+        brandAr: "مزارع البركة",
+        brandEn: "Al-Barakah Butchery",
+        unitAr: "كيلوجرام",
+        unitEn: "1 Kilogram",
+        price: 430.00,
+        oldPrice: null,
+        stock: 19,
+        icon: "🥓",
+        nutrition: { cal: "215 ك.سعرة", protein: "24 جم", fat: "12 جم", carb: "0 جم" },
+        descAr: "لحم بقري مفروم طازج وش واحد أو وشين بحسب الطلب، ممتاز للمكرونة البشاميل والكفتة.",
+        descEn: "Finely ground lean Egyptian beef, ideal for pasta, meatballs and burgers."
+      },
+      {
+        id: 12,
+        barcode: "6229000123470",
+        sku: "MEA-CHX-03",
+        dept: "MEAT",
+        nameAr: "صدور دجاج بانيه متبلة جاهزة للتحمير 1 كجم",
+        nameEn: "Fresh Chicken Breast Fillets (Panee) 1kg",
+        brandAr: "مزارع البركة",
+        brandEn: "Al-Barakah Farms",
+        unitAr: "طبق 1 كجم",
+        unitEn: "1 Kilogram Tray",
+        price: 245.00,
+        oldPrice: 265.00,
+        stock: 35,
+        icon: "🍗",
+        nutrition: { cal: "165 ك.سعرة", protein: "31 جم", fat: "3.6 جم", carb: "0 جم" },
+        descAr: "صدور دجاج طازجة مخلية وخالية من الهرمونات مجهزة للشوي أو التحمير الفوري.",
+        descEn: "Skinless boneless tender chicken breasts, 100% natural and freshly dressed."
+      },
+
+      // 4. المخبوزات والحلويات (BAKERY)
+      {
+        id: 13,
+        barcode: "6222011002233",
+        sku: "BAK-RIC-01",
+        dept: "BAKERY",
+        nameAr: "خبز توست أبيض كلاسيك ريتش بيك 500 جم",
+        nameEn: "Rich Bake Classic White Toast Bread 500g",
+        brandAr: "ريتش بيك",
+        brandEn: "Rich Bake",
+        unitAr: "كيس 500 جم",
+        unitEn: "500g Loaf",
+        price: 43.00,
+        oldPrice: null,
+        stock: 45,
+        icon: "🍞",
+        nutrition: { cal: "265 ك.سعرة", protein: "8.0 جم", fat: "3.2 جم", carb: "49 جم" },
+        descAr: "توست طري وهش ذو شرائح متناسقة مثالي لساندوتشات التوست المقرمشة والبرجر.",
+        descEn: "Super soft sliced white toast made from golden baked wheat flour."
+      },
+      {
+        id: 14,
+        barcode: "6229000990011",
+        sku: "BAK-BAL-02",
+        dept: "BAKERY",
+        nameAr: "عيش بلدي طازج بالردة مخابز البركة (10 أرغفة)",
+        nameEn: "Al-Barakah Fresh Egyptian Baladi Flatbread (10 Loaves)",
+        brandAr: "مخابز البركة",
+        brandEn: "Al-Barakah Bakery",
+        unitAr: "ربطة 10 أرغفة",
+        unitEn: "Pack of 10",
+        price: 25.00,
+        oldPrice: null,
+        stock: 90,
+        icon: "🫓",
+        nutrition: { cal: "150 ك.سعرة / رغيف", protein: "5.5 جم", fat: "1.0 جم", carb: "32 جم" },
+        descAr: "خبز بلدي مخبوز على الحجر في أفراننا كل ساعة ليقدم لكم طازجاً وساخناً.",
+        descEn: "Traditional Egyptian stone-baked wholemeal flatbread with natural wheat bran."
+      },
+
+      // 5. المشروبات والقهوة والشاي (BEVERAGES)
+      {
+        id: 15,
+        barcode: "6224000112233",
+        sku: "BEV-ARO-01",
+        dept: "BEVERAGES",
+        nameAr: "شاي أسود ناعم خرز العروسة كرتونة 250 جم",
+        nameEn: "El Arosa Black Fine Dust Tea 250g",
+        brandAr: "العروسة",
+        brandEn: "El Arosa",
+        unitAr: "عبوة 250 جم",
+        unitEn: "250g Pack",
+        price: 52.50,
+        oldPrice: 56.00,
+        stock: 130,
+        icon: "☕",
+        nutrition: { cal: "1 ك.سعرة", protein: "0 جم", fat: "0 جم", carb: "0.2 جم" },
+        descAr: "شاي كيني أصيل ذو لون أحمر كهرماني ونكهة قوية تضبط المزاج الصباحي والمسائي.",
+        descEn: "Rich amber Kenyan black tea with robust aroma and authentic traditional punch."
+      },
+      {
+        id: 16,
+        barcode: "6221100012023",
+        sku: "BEV-ABD-02",
+        dept: "BEVERAGES",
+        nameAr: "قهوة تركي محوج بن عبد المعبود فاتح 100 جم",
+        nameEn: "Abdel Maboud Light Cardamom Turkish Coffee 100g",
+        brandAr: "عبد المعبود",
+        brandEn: "Abdel Maboud",
+        unitAr: "كيس 100 جم",
+        unitEn: "100g Pouch",
+        price: 49.00,
+        oldPrice: null,
+        stock: 80,
+        icon: "🫘",
+        nutrition: { cal: "2 ك.سعرة", protein: "0.1 جم", fat: "0 جم", carb: "0.3 جم" },
+        descAr: "توليفة البن البرازيلي الفاخر ممزوجة مع الحبهان الأخضر الفواح لتحضير فنجان قهوة بوجه مميز.",
+        descEn: "Finely ground Arabic coffee blended with natural cardamom for rich Crema."
+      },
+      {
+        id: 17,
+        barcode: "6221000045055",
+        sku: "BEV-LAM-03",
+        dept: "BEVERAGES",
+        nameAr: "عصير برتقال طبيعي 100% بدون سكر لمار 1 لتر",
+        nameEn: "Lamar 100% Pure Orange Juice No Added Sugar 1L",
+        brandAr: "لمار",
+        brandEn: "Lamar",
+        unitAr: "عبوة 1 لتر",
+        unitEn: "1L TetraPak",
+        price: 45.00,
+        oldPrice: 50.00,
+        stock: 70,
+        icon: "🍊",
+        nutrition: { cal: "45 ك.سعرة", protein: "0.7 جم", fat: "0.2 جم", carb: "10 جم" },
+        descAr: "عصير طبيعي معصور من برتقال مزارع لمار بدون مواد حافظة أو سكر مضاف.",
+        descEn: "100% pure squeezed natural orange juice rich in Vitamin C."
+      },
+
+      // 6. المنظفات والعناية المنزلية (CLEANING)
+      {
+        id: 18,
+        barcode: "6221002005012",
+        sku: "CLN-ARI-01",
+        dept: "CLEANING",
+        nameAr: "مسحوق غسيل أوتوماتيك أريال بعبير اللافندر 4 كجم",
+        nameEn: "Ariel Touch of Lavender Automatic Powder Detergent 4kg",
+        brandAr: "أريال",
+        brandEn: "Ariel",
+        unitAr: "كيس 4 كجم",
+        unitEn: "4kg Bag",
+        price: 285.00,
+        oldPrice: 320.00,
+        stock: 30,
+        icon: "🧺",
+        nutrition: null,
+        descAr: "إزالة أصعب البقع من أول غسلة مع انتعاش يدوم طويلاً برائحة زهور اللافندر الفرنسية.",
+        descEn: "Superior stain removal in 1 wash with long-lasting floral freshness for automatic machines."
+      },
+      {
+        id: 19,
+        barcode: "6221003004040",
+        sku: "CLN-PRI-02",
+        dept: "CLEANING",
+        nameAr: "سائل غسيل الأطباق المركز بالليمون بريل 1 لتر",
+        nameEn: "Pril Power Degreaser Lemon Dishwashing Liquid 1L",
+        brandAr: "بريل",
+        brandEn: "Pril",
+        unitAr: "زجاجة 1 لتر",
+        unitEn: "1L Bottle",
+        price: 48.00,
+        oldPrice: 54.00,
+        stock: 65,
+        icon: "🍋",
+        nutrition: null,
+        descAr: "تركيبة مركزة بقوة قهر الدهون المتراكمة في ثوانٍ، لطيف على الأيدي وموفر للمنزل.",
+        descEn: "Thick degreasing action removes burnt food easily with refreshing lemon scent."
+      },
+      {
+        id: 20,
+        barcode: "6223000889901",
+        sku: "CLN-ZEI-03",
+        dept: "CLEANING",
+        nameAr: "مناديل تواليت مضغوطة زينة كلاسيك 3 طبقات (12 بكرة)",
+        nameEn: "Zeina Soft & Strong 3-Ply Toilet Tissues (12 Rolls)",
+        brandAr: "زينة",
+        brandEn: "Zeina",
+        unitAr: "حزمة 12 رول",
+        unitEn: "12 Rolls Pack",
+        price: 95.00,
+        oldPrice: null,
+        stock: 55,
+        icon: "🧻",
+        nutrition: null,
+        descAr: "مناديل بيضاء فائقة النعومة والامتصاص مصنوعة من لب الشجر الطبيعي 100%.",
+        descEn: "100% natural virgin pulp tissues, ultra-absorbent, thick and gentle on skin."
       }
     ];
 
-    let currentLang = 'ar';
-    let currentView = 'storefront';
-    let cart = [];
-    let activeCategory = 'ALL';
+    /* ==========================================================================
+       إدارة الحالة العامة (State Management & Persistence Engine)
+       ========================================================================== */
+    let appState = {
+      lang: 'ar',
+      currentView: 'storefront',
+      activeDepartment: 'ALL',
+      searchQuery: '',
+      products: [],
+      customerCart: [],
+      posCart: [],
+      heldPosBills: [],
+      ordersHistory: [],
+      totalSalesRevenue: 0,
+      totalOrdersCount: 0
+    };
 
-    // التهيئة الأولى
-    document.addEventListener('DOMContentLoaded', () => {
-      renderStoreProducts();
-      renderPosQuickItems();
-      updateCartUI();
+    // تهيئة النظام عند تحميل الصفحة
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStateFromStorage();
+      renderAll();
+      setupKeyboardShortcuts();
     });
 
-    // تبديل اللغة (عربي / إنجليزي)
-    function toggleLanguage() {
-      currentLang = currentLang === 'ar' ? 'en' : 'ar';
-      document.documentElement.lang = currentLang;
-      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    function loadStateFromStorage() {
+      const savedProducts = localStorage.getItem('albarakah_products');
+      appState.products = savedProducts ? JSON.parse(savedProducts) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
 
-      // تحديث النصوص الثابتة
-      document.querySelectorAll('[data-ar]').forEach(el => {
-        el.innerText = el.getAttribute(`data-${currentLang}`);
-      });
+      const savedCustCart = localStorage.getItem('albarakah_customer_cart');
+      if (savedCustCart) appState.customerCart = JSON.parse(savedCustCart);
 
-      // تحديث الـ Placeholders
-      document.querySelectorAll('[data-ph-ar]').forEach(el => {
-        el.setAttribute('placeholder', el.getAttribute(`data-ph-${currentLang}`));
-      });
+      const savedPosCart = localStorage.getItem('albarakah_pos_cart');
+      if (savedPosCart) appState.posCart = JSON.parse(savedPosCart);
 
-      document.getElementById('langToggleBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
-      renderStoreProducts();
-      updateCartUI();
-      renderPosCartTable();
+      const savedHeld = localStorage.getItem('albarakah_held_bills');
+      if (savedHeld) appState.heldPosBills = JSON.parse(savedHeld);
+
+      const savedRev = localStorage.getItem('albarakah_revenue');
+      if (savedRev) appState.totalSalesRevenue = parseFloat(savedRev);
+
+      const savedOrdersCount = localStorage.getItem('albarakah_orders_count');
+      if (savedOrdersCount) appState.totalOrdersCount = parseInt(savedOrdersCount, 10);
     }
 
-    // تبديل العرض بين المتجر والكاشير
-    function toggleView() {
-      const storefront = document.getElementById('storefrontView');
-      const pos = document.getElementById('posView');
-      const viewModeText = document.getElementById('viewModeText');
+    function saveProductsState() {
+      localStorage.setItem('albarakah_products', JSON.stringify(appState.products));
+    }
 
-      if (currentView === 'storefront') {
-        currentView = 'pos';
-        storefront.classList.remove('active');
-        pos.classList.add('active');
-        viewModeText.setAttribute('data-ar', 'عرض المتجر الإلكتروني');
-        viewModeText.setAttribute('data-en', 'Storefront View');
-        viewModeText.innerText = currentLang === 'ar' ? 'عرض المتجر الإلكتروني' : 'Storefront View';
-        document.getElementById('barcodeInput').focus();
-      } else {
-        currentView = 'storefront';
-        pos.classList.remove('active');
-        storefront.classList.add('active');
-        viewModeText.setAttribute('data-ar', 'شاشة الكاشير POS');
-        viewModeText.setAttribute('data-en', 'Cashier POS View');
-        viewModeText.innerText = currentLang === 'ar' ? 'شاشة الكاشير POS' : 'Cashier POS View';
+    function saveCustomerCart() {
+      localStorage.setItem('albarakah_customer_cart', JSON.stringify(appState.customerCart));
+    }
+
+    function savePosCart() {
+      localStorage.setItem('albarakah_pos_cart', JSON.stringify(appState.posCart));
+    }
+
+    function saveHeldBills() {
+      localStorage.setItem('albarakah_held_bills', JSON.stringify(appState.heldPosBills));
+    }
+
+    function saveStats() {
+      localStorage.setItem('albarakah_revenue', appState.totalSalesRevenue.toString());
+      localStorage.setItem('albarakah_orders_count', appState.totalOrdersCount.toString());
+    }
+
+    function resetDatabaseToDefault() {
+      if (confirm(appState.lang === 'ar' ? 'هل أنت متأكد من رغبتك في إعادة تعيين كافة الأصناف والأسعار والمخزون إلى حالة المصنع؟' : 'Reset all database items and stock to factory default?')) {
+        appState.products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        saveProductsState();
+        renderAll();
+        showToast(appState.lang === 'ar' ? 'تمت استعادة قاعدة البيانات الأصلية بنجاح' : 'Database reset to default successfully');
       }
     }
 
-    // عرض المنتجات في المتجر
-    function renderStoreProducts() {
-      const grid = document.getElementById('productsGrid');
-      const searchVal = document.getElementById('searchInput').value.toLowerCase();
-      grid.innerHTML = '';
+    /* ==========================================================================
+       محرك التدويل وتغيير اللغات (i18n Localization Engine)
+       ========================================================================== */
+    function toggleLanguage() {
+      appState.lang = appState.lang === 'ar' ? 'en' : 'ar';
+      document.documentElement.lang = appState.lang;
+      document.documentElement.dir = appState.lang === 'ar' ? 'rtl' : 'ltr';
 
-      const filtered = productsDB.filter(p => {
-        const matchesCategory = activeCategory === 'ALL' || p.category === activeCategory;
-        const name = (currentLang === 'ar' ? p.nameAr : p.nameEn).toLowerCase();
-        const matchesSearch = name.includes(searchVal) || p.barcode.includes(searchVal);
-        return matchesCategory && matchesSearch;
+      // تحديث النصوص الثابتة
+      document.querySelectorAll('[data-ar]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${appState.lang}`);
       });
 
+      // تحديث حقول الإدخال
+      document.querySelectorAll('[data-ph-ar]').forEach(el => {
+        el.setAttribute('placeholder', el.getAttribute(`data-ph-${appState.lang}`));
+      });
+
+      document.getElementById('langSwitchBtn').innerText = appState.lang === 'ar' ? 'English' : 'عربي';
+
+      renderAll();
+    }
+
+    /* ==========================================================================
+       التبديل بين الشاشات (Navigation Router)
+       ========================================================================== */
+    function switchView(viewName) {
+      appState.currentView = viewName;
+
+      document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      if (viewName === 'storefront') {
+        document.getElementById('viewStorefront').classList.add('active');
+        document.getElementById('btnViewStore').classList.add('active');
+      } else if (viewName === 'pos') {
+        document.getElementById('viewPos').classList.add('active');
+        document.getElementById('btnViewPos').classList.add('active');
+        setTimeout(() => document.getElementById('posBarcodeInput').focus(), 150);
+      } else if (viewName === 'admin') {
+        document.getElementById('viewAdmin').classList.add('active');
+        document.getElementById('btnViewAdmin').classList.add('active');
+      }
+
+      renderAll();
+    }
+
+    /* ==========================================================================
+       منطق المتجر الإلكتروني للعملاء (Storefront Engine)
+       ========================================================================== */
+    function filterByDepartment(deptKey) {
+      appState.activeDepartment = deptKey;
+      document.querySelectorAll('.cat-chip').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderStorefront();
+    }
+
+    function handleSearch(val) {
+      appState.searchQuery = val.trim().toLowerCase();
+      renderStorefront();
+    }
+
+    function clearSearch() {
+      document.getElementById('globalSearchInput').value = '';
+      appState.searchQuery = '';
+      renderStorefront();
+    }
+
+    function renderStorefront() {
+      const grid = document.getElementById('storefrontGrid');
+      grid.innerHTML = '';
+
+      const query = appState.searchQuery;
+      const filtered = appState.products.filter(p => {
+        const matchesDept = appState.activeDepartment === 'ALL' || p.dept === appState.activeDepartment;
+        const name = (appState.lang === 'ar' ? p.nameAr : p.nameEn).toLowerCase();
+        const brand = (appState.lang === 'ar' ? p.brandAr : p.brandEn).toLowerCase();
+        const matchesSearch = !query || name.includes(query) || brand.includes(query) || p.barcode.includes(query) || p.sku.toLowerCase().includes(query);
+        return matchesDept && matchesSearch;
+      });
+
+      document.getElementById('productResultsCount').innerText = `${filtered.length} ${appState.lang === 'ar' ? 'صنف متوفر' : 'items'}`;
+
       filtered.forEach(p => {
-        const title = currentLang === 'ar' ? p.nameAr : p.nameEn;
-        const unit = currentLang === 'ar' ? p.unitAr : p.unitEn;
-        const currBadge = currentLang === 'ar' ? 'ج.م' : 'EGP';
-        const cartItem = cart.find(i => i.id === p.id);
-        const qty = cartItem ? cartItem.qty : 0;
+        const title = appState.lang === 'ar' ? p.nameAr : p.nameEn;
+        const brand = appState.lang === 'ar' ? p.brandAr : p.brandEn;
+        const unit = appState.lang === 'ar' ? p.unitAr : p.unitEn;
+        const currency = appState.lang === 'ar' ? 'ج.م' : 'EGP';
+        const inCartItem = appState.customerCart.find(i => i.id === p.id);
+        const qtyInCart = inCartItem ? inCartItem.qty : 0;
+        const isOutOfStock = p.stock <= 0;
 
         const card = document.createElement('div');
-        card.className = 'product-card';
+        card.className = `product-card ${isOutOfStock ? 'out-of-stock' : ''}`;
         card.innerHTML = `
-          <div class="prod-img">${p.img}</div>
-          <span class="prod-brand">${p.brand}</span>
-          <h4 class="prod-title">${title}</h4>
-          <span class="prod-unit">${unit}</span>
-          <div class="price-row">
-            <div>
-              <span class="prod-price">${p.price.toFixed(2)}</span>
-              <span class="currency">${currBadge}</span>
-              ${p.oldPrice ? `<span class="old-price">${p.oldPrice.toFixed(2)}</span>` : ''}
-            </div>
-            <span class="stock-tag">${currentLang === 'ar' ? 'متوفر' : 'In Stock'}</span>
+          <div class="card-media-box" onclick="openQuickViewModal(${p.id})">
+            <span class="product-icon">${p.icon}</span>
+            ${p.oldPrice ? `<span class="discount-pill">-${Math.round(((p.oldPrice - p.price)/p.oldPrice)*100)}%</span>` : ''}
+            <button class="info-preview-btn" title="القيمة الغذائية والتفاصيل" onclick="event.stopPropagation(); openQuickViewModal(${p.id})">ℹ️</button>
           </div>
-          <div class="card-action">
-            ${qty === 0 ? `
-              <button class="btn btn-primary btn-block" onclick="addToCart(${p.id})">
-                ${currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
-              </button>
-            ` : `
-              <div class="qty-control">
-                <button onclick="updateQty(${p.id}, -1)">-</button>
-                <span>${qty}</span>
-                <button onclick="updateQty(${p.id}, 1)">+</button>
+          <div class="card-details">
+            <span class="product-brand-tag">${brand}</span>
+            <h4 class="product-name" onclick="openQuickViewModal(${p.id})">${title}</h4>
+            <span class="product-unit-meta">${unit} • <span class="sku-code">${p.sku}</span></span>
+            <div class="product-pricing">
+              <div>
+                <span class="current-price">${p.price.toFixed(2)}</span>
+                <span class="currency-tag">${currency}</span>
+                ${p.oldPrice ? `<span class="crossed-price">${p.oldPrice.toFixed(2)}</span>` : ''}
               </div>
-            `}
+              <span class="stock-status-pill ${p.stock < 20 ? 'low' : ''}">
+                ${isOutOfStock ? (appState.lang === 'ar' ? 'نفد' : 'Out of stock') : (appState.lang === 'ar' ? `باقي: ${p.stock}` : `Stock: ${p.stock}`)}
+              </span>
+            </div>
+            <div class="card-action-bar">
+              ${isOutOfStock ? `
+                <button class="btn btn-disabled btn-block" disabled>${appState.lang === 'ar' ? 'غير متاح حالياً' : 'Out of stock'}</button>
+              ` : qtyInCart === 0 ? `
+                <button class="btn btn-primary btn-block" onclick="updateCustomerCart(${p.id}, 1)">
+                  🛒 ${appState.lang === 'ar' ? 'أضف للسلة' : 'Add to Basket'}
+                </button>
+              ` : `
+                <div class="interactive-qty-control">
+                  <button onclick="updateCustomerCart(${p.id}, -1)">−</button>
+                  <span class="qty-num">${qtyInCart}</span>
+                  <button onclick="updateCustomerCart(${p.id}, 1)" ${qtyInCart >= p.stock ? 'disabled' : ''}>+</button>
+                </div>
+              `}
+            </div>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    // فلترة الأقسام
-    function filterCategory(cat) {
-      activeCategory = cat;
-      document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      renderStoreProducts();
-    }
-
-    // البحث اللحظي
-    document.getElementById('searchInput').addEventListener('input', renderStoreProducts);
-
-    // إدارة السلة المشتركة
-    function addToCart(productId) {
-      const product = productsDB.find(p => p.id === productId);
+    /* ==========================================================================
+       سلة المتجر التفاعلية وحسابات الشحن المجاني (Store Cart Logic)
+       ========================================================================== */
+    function updateCustomerCart(productId, delta) {
+      const product = appState.products.find(p => p.id === productId);
       if (!product) return;
 
-      const item = cart.find(i => i.id === productId);
-      if (item) {
-        item.qty += 1;
-      } else {
-        cart.push({ ...product, qty: 1 });
+      const existingIndex = appState.customerCart.findIndex(i => i.id === productId);
+
+      if (existingIndex > -1) {
+        const newQty = appState.customerCart[existingIndex].qty + delta;
+        if (newQty > product.stock) {
+          showToast(appState.lang === 'ar' ? 'عذراً! الكمية المطلوبة غير متوفرة في المخزن' : 'Requested quantity exceeds available stock');
+          return;
+        }
+        if (newQty <= 0) {
+          appState.customerCart.splice(existingIndex, 1);
+        } else {
+          appState.customerCart[existingIndex].qty = newQty;
+        }
+      } else if (delta > 0) {
+        appState.customerCart.push({ id: product.id, qty: 1 });
       }
 
-      showToast(currentLang === 'ar' ? `تمت إضافة: ${product.nameAr}` : `Added: ${product.nameEn}`);
-      updateCartUI();
-      renderStoreProducts();
-      renderPosCartTable();
+      saveCustomerCart();
+      renderStorefront();
+      renderCustomerCartDrawer();
+      showToast(appState.lang === 'ar' ? `تم تحديث سلة التسوق` : `Basket updated`);
     }
 
-    function updateQty(productId, change) {
-      const index = cart.findIndex(i => i.id === productId);
-      if (index === -1) return;
+    function renderCustomerCartDrawer() {
+      const drawerList = document.getElementById('drawerCartItems');
+      drawerList.innerHTML = '';
+      const currency = appState.lang === 'ar' ? 'ج.م' : 'EGP';
 
-      cart[index].qty += change;
-      if (cart[index].qty <= 0) {
-        cart.splice(index, 1);
-      }
-
-      updateCartUI();
-      renderStoreProducts();
-      renderPosCartTable();
-    }
-
-    function updateCartUI() {
-      const badge = document.getElementById('cartBadge');
-      const totalCount = cart.reduce((acc, i) => acc + i.qty, 0);
-      badge.innerText = totalCount;
-
-      const itemsContainer = document.getElementById('cartItemsList');
-      itemsContainer.innerHTML = '';
-      const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
-
+      let totalItemCount = 0;
       let subtotal = 0;
-      cart.forEach(item => {
-        subtotal += item.price * item.qty;
-        const title = currentLang === 'ar' ? item.nameAr : item.nameEn;
+
+      appState.customerCart.forEach(item => {
+        const product = appState.products.find(p => p.id === item.id);
+        if (!product) return;
+
+        totalItemCount += item.qty;
+        const lineTotal = product.price * item.qty;
+        subtotal += lineTotal;
+        const title = appState.lang === 'ar' ? product.nameAr : product.nameEn;
+
         const row = document.createElement('div');
-        row.className = 'cart-item-row';
+        row.className = 'cart-drawer-row';
         row.innerHTML = `
-          <div class="cart-item-info">
+          <div class="row-icon">${product.icon}</div>
+          <div class="row-info">
             <strong>${title}</strong>
-            <small>${item.price.toFixed(2)} ${curr} × ${item.qty}</small>
+            <small>${product.price.toFixed(2)} × ${item.qty} = <b>${lineTotal.toFixed(2)} ${currency}</b></small>
           </div>
-          <div class="qty-control small">
-            <button onclick="updateQty(${item.id}, -1)">-</button>
+          <div class="interactive-qty-control small">
+            <button onclick="updateCustomerCart(${product.id}, -1)">−</button>
             <span>${item.qty}</span>
-            <button onclick="updateQty(${item.id}, 1)">+</button>
+            <button onclick="updateCustomerCart(${product.id}, 1)" ${item.qty >= product.stock ? 'disabled' : ''}>+</button>
           </div>
         `;
-        itemsContainer.appendChild(row);
+        drawerList.appendChild(row);
       });
 
-      const vat = subtotal - (subtotal / 1.14);
-      const delivery = subtotal >= 500 || subtotal === 0 ? 0 : 35;
-      const total = subtotal + delivery;
+      // تحديث شارات العدادات
+      document.getElementById('headerCartCount').innerText = totalItemCount;
+      document.getElementById('drawerTotalItemsCount').innerText = `${totalItemCount} ${appState.lang === 'ar' ? 'منتجات مختارة' : 'items'}`;
 
-      document.getElementById('drawerSubtotal').innerText = `${subtotal.toFixed(2)} ${curr}`;
-      document.getElementById('drawerVat').innerText = `${vat.toFixed(2)} ${curr}`;
-      document.getElementById('drawerDelivery').innerText = delivery === 0 ? (currentLang === 'ar' ? 'مجاني' : 'Free') : `${delivery.toFixed(2)} ${curr}`;
-      document.getElementById('drawerTotal').innerText = `${total.toFixed(2)} ${curr}`;
+      // شروط الشحن المجاني (أكثر من 500 جنيه)
+      const FREE_SHIPPING_LIMIT = 500;
+      const vat = subtotal - (subtotal / 1.14);
+      const delivery = (subtotal >= FREE_SHIPPING_LIMIT || subtotal === 0) ? 0 : 35.0;
+      const grandTotal = subtotal + delivery;
+
+      // تحديث مؤشر الشحن المجاني
+      const progressPercent = Math.min(100, Math.round((subtotal / FREE_SHIPPING_LIMIT) * 100));
+      document.getElementById('shippingProgressFill').style.width = `${progressPercent}%`;
+      const diffToFree = FREE_SHIPPING_LIMIT - subtotal;
+
+      const shippingHint = document.getElementById('shippingHintText');
+      if (subtotal === 0) {
+        shippingHint.innerText = appState.lang === 'ar' ? 'أضف بـ 500 ج.م للحصول على شحن مجاني' : 'Add 500 EGP for Free Shipping';
+      } else if (diffToFree > 0) {
+        shippingHint.innerText = appState.lang === 'ar' ? `باقي ${diffToFree.toFixed(2)} ج.م وتستمتع بالشحن المجاني!` : `Add ${diffToFree.toFixed(2)} EGP more to get Free Shipping!`;
+      } else {
+        shippingHint.innerText = appState.lang === 'ar' ? '🎉 مبروك! طلبيتك مؤهلة للشحن السريع المجاني' : '🎉 Congratulations! You unlocked Free Shipping';
+      }
+
+      document.getElementById('drawerSubtotalPrice').innerText = `${subtotal.toFixed(2)} ${currency}`;
+      document.getElementById('drawerVatAmount').innerText = `${vat.toFixed(2)} ${currency}`;
+      document.getElementById('drawerShippingFee').innerText = delivery === 0 ? (appState.lang === 'ar' ? 'مجاني 100%' : 'FREE') : `${delivery.toFixed(2)} ${currency}`;
+      document.getElementById('drawerGrandTotalPrice').innerText = `${grandTotal.toFixed(2)} ${currency}`;
     }
 
     function toggleCartDrawer() {
       document.getElementById('cartDrawer').classList.toggle('open');
-      document.getElementById('drawerOverlay').classList.toggle('open');
+      document.getElementById('cartOverlay').classList.toggle('open');
     }
 
-    // منطق الكاشير ونقطة البيع (POS)
-    function renderPosQuickItems() {
-      const grid = document.getElementById('posQuickGrid');
-      grid.innerHTML = '';
-      productsDB.forEach(p => {
-        const title = currentLang === 'ar' ? p.nameAr : p.nameEn;
+    /* ==========================================================================
+       محرك نقطة البيع والكاشير (POS Terminal Engine)
+       ========================================================================== */
+    function handlePosBarcodeSubmit(e) {
+      e.preventDefault();
+      const code = document.getElementById('posBarcodeInput').value.trim();
+      if (!code) return;
+
+      const product = appState.products.find(p => p.barcode === code || p.sku.toLowerCase() === code.toLowerCase());
+
+      if (product) {
+        addPosItem(product.id, 1);
+        document.getElementById('posBarcodeInput').value = '';
+      } else {
+        showToast(appState.lang === 'ar' ? `الباركود [${code}] غير مسجل بالنظام!` : `Barcode [${code}] not found!`);
+      }
+    }
+
+    function addPosItem(productId, qty) {
+      const product = appState.products.find(p => p.id === productId);
+      if (!product) return;
+
+      const existingIndex = appState.posCart.findIndex(i => i.id === productId);
+      if (existingIndex > -1) {
+        const proposedQty = appState.posCart[existingIndex].qty + qty;
+        if (proposedQty > product.stock) {
+          alert(appState.lang === 'ar' ? `المخزون المتوفر في الفرع لا يكفي (${product.stock} فقط)` : `Insufficient store stock (${product.stock} left)`);
+          return;
+        }
+        appState.posCart[existingIndex].qty = proposedQty;
+      } else {
+        if (qty > product.stock) {
+          alert(appState.lang === 'ar' ? `المخزون المتوفر لا يكفي` : `Insufficient stock`);
+          return;
+        }
+        appState.posCart.push({ id: product.id, qty: qty });
+      }
+
+      savePosCart();
+      renderPosView();
+    }
+
+    function updatePosItemQty(productId, newQty) {
+      const product = appState.products.find(p => p.id === productId);
+      if (!product) return;
+
+      const idx = appState.posCart.findIndex(i => i.id === productId);
+      if (idx === -1) return;
+
+      if (newQty <= 0) {
+        appState.posCart.splice(idx, 1);
+      } else {
+        if (newQty > product.stock) {
+          alert(appState.lang === 'ar' ? `الرصيد المتاح: ${product.stock}` : `Max stock: ${product.stock}`);
+          return;
+        }
+        appState.posCart[idx].qty = newQty;
+      }
+
+      savePosCart();
+      renderPosView();
+    }
+
+    function removePosItem(productId) {
+      appState.posCart = appState.posCart.filter(i => i.id !== productId);
+      savePosCart();
+      renderPosView();
+    }
+
+    function resetPosBill() {
+      if (appState.posCart.length === 0) return;
+      if (confirm(appState.lang === 'ar' ? 'هل تريد مسح الفاتورة الحالية بالكاشير؟' : 'Clear current transaction?')) {
+        appState.posCart = [];
+        savePosCart();
+        document.getElementById('posCashTendered').value = '';
+        renderPosView();
+      }
+    }
+
+    function renderPosView() {
+      // 1. شبكة الأصناف السريعة
+      const quickGrid = document.getElementById('posQuickGrid');
+      quickGrid.innerHTML = '';
+      appState.products.forEach(p => {
+        const title = appState.lang === 'ar' ? p.nameAr : p.nameEn;
         const btn = document.createElement('button');
-        btn.className = 'quick-item-btn';
+        btn.className = `pos-touch-card ${p.stock <= 0 ? 'disabled' : ''}`;
+        btn.disabled = p.stock <= 0;
+        btn.onclick = () => addPosItem(p.id, 1);
         btn.innerHTML = `
-          <div class="icon">${p.img}</div>
-          <div class="name">${title}</div>
-          <div class="price">${p.price.toFixed(2)} ج.م</div>
+          <span class="touch-icon">${p.icon}</span>
+          <span class="touch-name">${title}</span>
+          <span class="touch-price">${p.price.toFixed(2)} ج.م</span>
+          <small class="touch-stock">${p.stock} قطعة</small>
         `;
-        btn.onclick = () => addToCart(p.id);
-        grid.appendChild(btn);
+        quickGrid.appendChild(btn);
       });
-    }
 
-    function renderPosCartTable() {
-      const tbody = document.getElementById('posItemsBody');
+      // 2. جدول الفاتورة
+      const tbody = document.getElementById('posTableBody');
       tbody.innerHTML = '';
-      let total = 0;
+      let totalQty = 0;
+      let grandTotal = 0;
+      const currency = appState.lang === 'ar' ? 'ج.م' : 'EGP';
 
-      cart.forEach(item => {
-        const lineTotal = item.price * item.qty;
-        total += lineTotal;
-        const title = currentLang === 'ar' ? item.nameAr : item.nameEn;
+      appState.posCart.forEach(item => {
+        const p = appState.products.find(prod => prod.id === item.id);
+        if (!p) return;
+
+        totalQty += item.qty;
+        const lineTotal = p.price * item.qty;
+        grandTotal += lineTotal;
+        const title = appState.lang === 'ar' ? p.nameAr : p.nameEn;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${title}</strong><br><small class="barcode-label">${item.barcode}</small></td>
           <td>
-            <div class="qty-control small">
-              <button onclick="updateQty(${item.id}, -1)">-</button>
+            <strong>${title}</strong><br>
+            <span class="barcode-sub">${p.barcode} • SKU: ${p.sku}</span>
+          </td>
+          <td class="text-center">
+            <div class="pos-inline-qty">
+              <button onclick="updatePosItemQty(${p.id}, ${item.qty - 1})">−</button>
               <span>${item.qty}</span>
-              <button onclick="updateQty(${item.id}, 1)">+</button>
+              <button onclick="updatePosItemQty(${p.id}, ${item.qty + 1})">+</button>
             </div>
           </td>
-          <td>${item.price.toFixed(2)}</td>
-          <td><strong>${lineTotal.toFixed(2)}</strong></td>
-          <td><button class="delete-btn" onclick="updateQty(${item.id}, -${item.qty})">&times;</button></td>
+          <td class="text-end font-mono">${p.price.toFixed(2)}</td>
+          <td class="text-end font-mono font-bold">${lineTotal.toFixed(2)}</td>
+          <td class="text-center">
+            <button class="pos-del-btn" onclick="removePosItem(${p.id})">&times;</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
 
-      document.getElementById('posTotalAmount').innerText = `${total.toFixed(2)} ${currentLang === 'ar' ? 'ج.م' : 'EGP'}`;
-      calcPosChange();
+      document.getElementById('posTotalQtyCount').innerText = `${totalQty} ${appState.lang === 'ar' ? 'قطع' : 'pcs'}`;
+      document.getElementById('posGrandTotal').innerText = `${grandTotal.toFixed(2)} ${currency}`;
+      document.getElementById('heldCount').innerText = appState.heldPosBills.length;
+
+      calculatePosChange();
     }
 
-    function handleBarcodeScan(e) {
-      e.preventDefault();
-      const code = document.getElementById('barcodeInput').value.trim();
-      if (!code) return;
+    function calculatePosChange() {
+      const grandTotal = appState.posCart.reduce((sum, item) => {
+        const p = appState.products.find(x => x.id === item.id);
+        return sum + (p ? p.price * item.qty : 0);
+      }, 0);
 
-      const product = productsDB.find(p => p.barcode === code || p.sku.toLowerCase() === code.toLowerCase());
-      if (product) {
-        addToCart(product.id);
-        document.getElementById('barcodeInput').value = '';
+      const tendered = parseFloat(document.getElementById('posCashTendered').value) || 0;
+      const change = tendered >= grandTotal && grandTotal > 0 ? tendered - grandTotal : 0;
+
+      const currency = appState.lang === 'ar' ? 'ج.م' : 'EGP';
+      document.getElementById('posChangeDisplay').innerText = `${change.toFixed(2)} ${currency}`;
+    }
+
+    function setExactCash() {
+      const grandTotal = appState.posCart.reduce((sum, item) => {
+        const p = appState.products.find(x => x.id === item.id);
+        return sum + (p ? p.price * item.qty : 0);
+      }, 0);
+      document.getElementById('posCashTendered').value = grandTotal.toFixed(2);
+      calculatePosChange();
+    }
+
+    // تعليق الفاتورة الحالية (Hold Cart)
+    function holdCurrentBill() {
+      if (appState.posCart.length === 0) {
+        showToast(appState.lang === 'ar' ? 'لا توجد أصناف في الفاتورة لتعليقها!' : 'Nothing to hold!');
+        return;
+      }
+      appState.heldPosBills.push({
+        id: Date.now(),
+        time: new Date().toLocaleTimeString(),
+        items: [...appState.posCart]
+      });
+      appState.posCart = [];
+      savePosCart();
+      saveHeldBills();
+      renderPosView();
+      showToast(appState.lang === 'ar' ? 'تم تعليق الفاتورة بنجاح في سجل الكاشير' : 'Transaction held successfully');
+    }
+
+    function showRecallModal() {
+      const container = document.getElementById('heldBillsContainer');
+      container.innerHTML = '';
+
+      if (appState.heldPosBills.length === 0) {
+        container.innerHTML = `<p class="p-4 text-center text-slate-500">${appState.lang === 'ar' ? 'لا توجد فواتير معلقة حالياً' : 'No held transactions.'}</p>`;
       } else {
-        alert(currentLang === 'ar' ? 'الصنف غير مسجل بالباركود المدخل' : 'Barcode item not found');
+        appState.heldPosBills.forEach((bill, idx) => {
+          const total = bill.items.reduce((acc, itm) => {
+            const p = appState.products.find(x => x.id === itm.id);
+            return acc + (p ? p.price * itm.qty : 0);
+          }, 0);
+
+          const card = document.createElement('div');
+          card.className = 'held-bill-item';
+          card.innerHTML = `
+            <div>
+              <strong>فاتورة معلقة #${idx + 1} (${bill.time})</strong><br>
+              <small>${bill.items.length} أصناف • الإجمالي: ${total.toFixed(2)} ج.م</small>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="recallHeldBill(${bill.id})">استرجاع الفاتورة</button>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      document.getElementById('recallModal').classList.add('open');
+    }
+
+    function closeRecallModal() {
+      document.getElementById('recallModal').classList.remove('open');
+    }
+
+    function recallHeldBill(billId) {
+      if (appState.posCart.length > 0) {
+        if (!confirm(appState.lang === 'ar' ? 'سوف يتم استبدال الأصناف الحالية بالفاتورة المعلقة، متابعة؟' : 'Current items will be overwritten. Continue?')) return;
+      }
+      const billIndex = appState.heldPosBills.findIndex(b => b.id === billId);
+      if (billIndex > -1) {
+        appState.posCart = appState.heldPosBills[billIndex].items;
+        appState.heldPosBills.splice(billIndex, 1);
+        savePosCart();
+        saveHeldBills();
+        closeRecallModal();
+        renderPosView();
+        showToast(appState.lang === 'ar' ? 'تم استرجاع الفاتورة المعلقة بنجاح' : 'Bill recalled');
       }
     }
 
-    function calcPosChange() {
-      const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-      const received = parseFloat(document.getElementById('cashReceivedInput').value) || 0;
-      const change = received >= total && total > 0 ? received - total : 0;
-      document.getElementById('posChangeDue').innerText = `${change.toFixed(2)} ${currentLang === 'ar' ? 'ج.م' : 'EGP'}`;
-    }
-
-    function clearPosCart() {
-      if (confirm(currentLang === 'ar' ? 'هل تريد تفريغ الفاتورة بالكامل؟' : 'Clear current transaction?')) {
-        cart = [];
-        updateCartUI();
-        renderStoreProducts();
-        renderPosCartTable();
-      }
-    }
-
-    function completePosOrder() {
-      if (cart.length === 0) {
-        alert(currentLang === 'ar' ? 'الفاتورة فارغة!' : 'Cart is empty!');
+    // إنهاء المعاملة بالكاشير وخصم المخزون وطباعة البون
+    function finalizePosTransaction() {
+      if (appState.posCart.length === 0) {
+        alert(appState.lang === 'ar' ? 'الفاتورة فارغة، لا يمكن إتمام المعاملة!' : 'Transaction is empty!');
         return;
       }
-      alert(currentLang === 'ar' ? 'تم حفظ الفاتورة وطباعة الإيصال بنجاح ✓' : 'Transaction completed and printed ✓');
-      cart = [];
-      document.getElementById('cashReceivedInput').value = '';
-      updateCartUI();
-      renderStoreProducts();
-      renderPosCartTable();
-    }
 
-    function checkoutStoreOrder() {
-      if (cart.length === 0) {
-        alert(currentLang === 'ar' ? 'السلة فارغة' : 'Cart is empty');
+      const grandTotal = appState.posCart.reduce((sum, item) => {
+        const p = appState.products.find(x => x.id === item.id);
+        return sum + (p ? p.price * item.qty : 0);
+      }, 0);
+
+      const cashTendered = parseFloat(document.getElementById('posCashTendered').value) || grandTotal;
+      if (cashTendered < grandTotal) {
+        alert(appState.lang === 'ar' ? 'المبلغ المستلم أقل من إجمالي الفاتورة المطلوب!' : 'Tendered cash is less than grand total!');
         return;
       }
-      alert(currentLang === 'ar' ? 'شكراً لطلبك من أسواق البركة! جاري تحضير شحنتك للتوصيل السريع.' : 'Thank you for shopping with Al-Barakah! Preparing your order.');
-      cart = [];
+
+      // 1. خصم الكميات من المخزون المركزي
+      appState.posCart.forEach(item => {
+        const prod = appState.products.find(p => p.id === item.id);
+        if (prod) {
+          prod.stock = Math.max(0, prod.stock - item.qty);
+        }
+      });
+
+      // 2. تحديث الإحصائيات
+      appState.totalSalesRevenue += grandTotal;
+      appState.totalOrdersCount += 1;
+      saveProductsState();
+      saveStats();
+
+      // 3. فتح شاشة طباعة البون الحراري
+      printThermalReceipt(appState.posCart, grandTotal, cashTendered, cashTendered - grandTotal);
+
+      // تفريغ الفاتورة
+      appState.posCart = [];
+      savePosCart();
+      document.getElementById('posCashTendered').value = '';
+      renderAll();
+      showToast(appState.lang === 'ar' ? '✓ تم حفظ المعاملة وتحديث المخزون بنجاح' : '✓ Transaction completed and stock updated');
+    }
+
+    // محاكاة بون الكاشير الحراري للطباعة الحقيقية
+    function printThermalReceipt(items, total, paid, change) {
+      const printWindow = window.open('', '_blank', 'width=350,height=600');
+      const now = new Date().toLocaleString('ar-EG');
+      const recId = 'ALBK-' + Math.floor(100000 + Math.random() * 900000);
+
+      let itemsHtml = '';
+      items.forEach(itm => {
+        const p = appState.products.find(x => x.id === itm.id);
+        if (p) {
+          itemsHtml += `
+            <tr>
+              <td style="padding:4px 0;">${p.nameAr}<br><small style="color:#666">${itm.qty} × ${p.price.toFixed(2)}</small></td>
+              <td style="text-align:left;vertical-align:bottom;">${(itm.qty * p.price).toFixed(2)}</td>
+            </tr>
+          `;
+        }
+      });
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8">
+          <title>فاتورة ضريبية - أسواق البركة</title>
+          <style>
+            body { font-family: monospace; padding: 10px; width: 280px; margin: 0 auto; font-size: 12px; }
+            .text-center { text-align: center; }
+            .divider { border-top: 1px dashed #000; margin: 8px 0; }
+            table { width: 100%; border-collapse: collapse; }
+            .total-bold { font-size: 15px; font-weight: bold; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <div class="text-center">
+            <h2 style="margin:0;">أسواق البركة</h2>
+            <p style="margin:2px 0;">فرع المعادي الجديد - القاهرة</p>
+            <p style="margin:2px 0;">س.ت: 109844 | ب.ض: 432-887-109</p>
+            <div class="divider"></div>
+            <p style="margin:2px 0;">إيصال نقدي: ${recId}</p>
+            <p style="margin:2px 0;">التاريخ: ${now}</p>
+          </div>
+          <div class="divider"></div>
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:right;">الصنف</th>
+                <th style="text-align:left;">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>${itemsHtml}</tbody>
+          </table>
+          <div class="divider"></div>
+          <table>
+            <tr class="total-bold">
+              <td>الإجمالي المستحق:</td>
+              <td style="text-align:left;">${total.toFixed(2)} ج.م</td>
+            </tr>
+            <tr>
+              <td>المدفوع نقداً:</td>
+              <td style="text-align:left;">${paid.toFixed(2)} ج.م</td>
+            </tr>
+            <tr>
+              <td>المتبقي (الفكة):</td>
+              <td style="text-align:left;">${change.toFixed(2)} ج.م</td>
+            </tr>
+          </table>
+          <div class="divider"></div>
+          <p class="text-center">الأسعار شاملة ض.ق.م 14%<br>شكراً لتسوقكم من أسواق البركة!</p>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    /* ==========================================================================
+       لوحة تحكم الإدارة وتعديل المخزون (Admin Engine)
+       ========================================================================== */
+    function renderAdminDashboard() {
+      // تحديث مؤشرات الـ KPIs
+      const currency = appState.lang === 'ar' ? 'ج.م' : 'EGP';
+      document.getElementById('adminTotalRevenue').innerText = `${appState.totalSalesRevenue.toFixed(2)} ${currency}`;
+      document.getElementById('adminTotalOrders').innerText = `${appState.totalOrdersCount} ${appState.lang === 'ar' ? 'عملية' : 'orders'}`;
+      document.getElementById('adminTotalSkus').innerText = `${appState.products.length} ${appState.lang === 'ar' ? 'صنف' : 'SKUs'}`;
+
+      const lowStockItems = appState.products.filter(p => p.stock < 20);
+      document.getElementById('adminLowStockCount').innerText = `${lowStockItems.length} ${appState.lang === 'ar' ? 'أصناف' : 'items'}`;
+
+      // ملء جدول المخزون والتسعير
+      const tbody = document.getElementById('adminInventoryTableBody');
+      tbody.innerHTML = '';
+
+      appState.products.forEach(p => {
+        const title = appState.lang === 'ar' ? p.nameAr : p.nameEn;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="font-mono text-xs">${p.barcode}</td>
+          <td>
+            <strong>${p.icon} ${title}</strong><br>
+            <small class="text-slate-500">SKU: ${p.sku}</small>
+          </td>
+          <td><span class="badge-dept">${p.dept}</span></td>
+          <td>
+            <input type="number" step="0.5" class="admin-price-input" value="${p.price.toFixed(2)}" onchange="updateProductPrice(${p.id}, this.value)" />
+          </td>
+          <td>
+            <input type="number" class="admin-stock-input" value="${p.stock}" onchange="updateProductStock(${p.id}, this.value)" />
+          </td>
+          <td>
+            <span class="stock-badge ${p.stock <= 0 ? 'out' : p.stock < 20 ? 'low' : 'good'}">
+              ${p.stock <= 0 ? 'نافد تماماً' : p.stock < 20 ? 'أوشك على النفاد' : 'متوفر ومريح'}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-success" onclick="quickAddStock(${p.id}, 25)">+25 حبة</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="quickAddStock(${p.id}, -10)">-10</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateProductPrice(productId, newPriceVal) {
+      const val = parseFloat(newPriceVal);
+      if (isNaN(val) || val <= 0) return;
+      const product = appState.products.find(p => p.id === productId);
+      if (product) {
+        product.price = val;
+        saveProductsState();
+        renderAll();
+        showToast(appState.lang === 'ar' ? `تم تحديث سعر: ${product.nameAr}` : `Price updated`);
+      }
+    }
+
+    function updateProductStock(productId, newStockVal) {
+      const val = parseInt(newStockVal, 10);
+      if (isNaN(val) || val < 0) return;
+      const product = appState.products.find(p => p.id === productId);
+      if (product) {
+        product.stock = val;
+        saveProductsState();
+        renderAll();
+        showToast(appState.lang === 'ar' ? `تم تعديل مخزون: ${product.nameAr}` : `Stock updated`);
+      }
+    }
+
+    function quickAddStock(productId, delta) {
+      const product = appState.products.find(p => p.id === productId);
+      if (product) {
+        product.stock = Math.max(0, product.stock + delta);
+        saveProductsState();
+        renderAll();
+        showToast(appState.lang === 'ar' ? `تم تعديل المخزون` : `Stock adjusted`);
+      }
+    }
+
+    /* ==========================================================================
+       النوافذ المنبثقة (Modals & Popups)
+       ========================================================================== */
+    function openQuickViewModal(productId) {
+      const product = appState.products.find(p => p.id === productId);
+      if (!product) return;
+
+      const title = appState.lang === 'ar' ? product.nameAr : product.nameEn;
+      const desc = appState.lang === 'ar' ? product.descAr : product.descEn;
+      const unit = appState.lang === 'ar' ? product.unitAr : product.unitEn;
+
+      let nutritionTable = '';
+      if (product.nutrition) {
+        nutritionTable = `
+          <div class="nutrition-box">
+            <h5 class="nutrition-title">${appState.lang === 'ar' ? 'القيمة الغذائية لكل 100 جم/مل:' : 'Nutrition Facts per 100g/ml:'}</h5>
+            <div class="nutri-grid">
+              <div class="nutri-cell"><span>السعرات:</span> <strong>${product.nutrition.cal}</strong></div>
+              <div class="nutri-cell"><span>البروتين:</span> <strong>${product.nutrition.protein}</strong></div>
+              <div class="nutri-cell"><span>الدهون:</span> <strong>${product.nutrition.fat}</strong></div>
+              <div class="nutri-cell"><span>الكربوهيدرات:</span> <strong>${product.nutrition.carb}</strong></div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('quickViewContent').innerHTML = `
+        <div class="modal-product-icon">${product.icon}</div>
+        <div class="modal-product-info">
+          <span class="product-brand-tag">${appState.lang === 'ar' ? product.brandAr : product.brandEn}</span>
+          <h3>${title}</h3>
+          <p class="product-desc-full">${desc}</p>
+          <div class="modal-meta-row">
+            <span>العبوة: <b>${unit}</b></span>
+            <span>الباركود: <b class="font-mono">${product.barcode}</b></span>
+          </div>
+          ${nutritionTable}
+          <div class="modal-footer-cta">
+            <span class="modal-price">${product.price.toFixed(2)} ج.م</span>
+            <button class="btn btn-primary" onclick="updateCustomerCart(${product.id}, 1); closeQuickViewModal();">
+              🛒 أضف لعربة التسوق الآن
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('quickViewModal').classList.add('open');
+    }
+
+    function closeQuickViewModal() {
+      document.getElementById('quickViewModal').classList.remove('open');
+    }
+
+    function openCheckoutModal() {
+      if (appState.customerCart.length === 0) {
+        showToast(appState.lang === 'ar' ? 'السلة فارغة حالياً!' : 'Cart is empty!');
+        return;
+      }
       toggleCartDrawer();
-      updateCartUI();
-      renderStoreProducts();
+      document.getElementById('checkoutModal').classList.add('open');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.remove('open');
+    }
+
+    function confirmCustomerOrder(e) {
+      e.preventDefault();
+      const name = document.getElementById('chkCustName').value;
+      const phone = document.getElementById('chkCustPhone').value;
+      const address = document.getElementById('chkCustAddress').value;
+
+      // حساب إجمالي الطلب مع خصم المخزون
+      let subtotal = 0;
+      appState.customerCart.forEach(item => {
+        const p = appState.products.find(x => x.id === item.id);
+        if (p) {
+          subtotal += p.price * item.qty;
+          p.stock = Math.max(0, p.stock - item.qty);
+        }
+      });
+
+      const delivery = subtotal >= 500 ? 0 : 35.0;
+      const grandTotal = subtotal + delivery;
+
+      appState.totalSalesRevenue += grandTotal;
+      appState.totalOrdersCount += 1;
+
+      saveProductsState();
+      saveStats();
+
+      // إفراغ السلة
+      appState.customerCart = [];
+      saveCustomerCart();
+
+      closeCheckoutModal();
+      renderAll();
+
+      alert(appState.lang === 'ar' ?
+        `تم استلام طلبك بنجاح يا ${name}! 🛵\nرقم الطلب: #ALBK-${Math.floor(1000 + Math.random() * 9000)}\nالعنوان: ${address}\nالإجمالي المطلوب: ${grandTotal.toFixed(2)} ج.م` :
+        `Order Confirmed for ${name}! Total: ${grandTotal.toFixed(2)} EGP`
+      );
+    }
+
+    /* ==========================================================================
+       اختصارات لوحة المفاتيح الاحترافية للكاشير (Keyboard Shortcuts F4 / F12)
+       ========================================================================== */
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if (appState.currentView === 'pos') {
+          if (e.key === 'F4') {
+            e.preventDefault();
+            holdCurrentBill();
+          } else if (e.key === 'F12') {
+            e.preventDefault();
+            finalizePosTransaction();
+          }
+        }
+      });
     }
 
     function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
+      const box = document.getElementById('toastBox');
+      box.innerText = msg;
+      box.classList.add('show');
+      setTimeout(() => box.classList.remove('show'), 2600);
+    }
+
+    // إعادة رسم جميع الواجهات النشطة
+    function renderAll() {
+      if (appState.currentView === 'storefront') {
+        renderStorefront();
+        renderCustomerCartDrawer();
+      } else if (appState.currentView === 'pos') {
+        renderPosView();
+      } else if (appState.currentView === 'admin') {
+        renderAdminDashboard();
+      }
     }
   </script>
 </body>
