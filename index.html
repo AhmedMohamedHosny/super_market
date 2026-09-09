@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أسواق البركة | Al-Barakah Markets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- شريط التنقل العلوي -->
+  <header class="main-header">
+    <div class="container header-content">
+      <div class="brand-zone">
+        <div class="logo-icon">🌿</div>
+        <div>
+          <h1 class="brand-title" data-ar="أسواق البركة" data-en="Al-Barakah Markets">أسواق البركة</h1>
+          <p class="brand-sub" data-ar="طازج يومياً وبأفضل سعر" data-en="Fresh daily at best prices">طازج يومياً وبأفضل سعر</p>
+        </div>
+      </div>
+
+      <!-- محرك البحث -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث بالاسم، الصنف أو الباركود..." data-ph-ar="ابحث بالاسم، الصنف أو الباركود..." data-ph-en="Search by name, category or barcode..." />
+      </div>
+
+      <!-- عناصر التحكم: تبديل الواجهة واللغة والسلة -->
+      <div class="actions-zone">
+        <button id="viewToggleBtn" class="btn btn-secondary" onclick="toggleView()">
+          <span id="viewModeText" data-ar="شاشة الكاشير POS" data-en="Cashier POS View">شاشة الكاشير POS</span>
+        </button>
+
+        <button id="langToggleBtn" class="btn btn-outline" onclick="toggleLanguage()">
+          English
+        </button>
+
+        <button id="cartBtn" class="btn btn-primary cart-trigger" onclick="toggleCartDrawer()">
+          🛒 <span data-ar="السلة" data-en="Cart">السلة</span>
+          <span id="cartBadge" class="badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= واجهة المتجر للعملاء (STOREFRONT VIEW) ================= -->
+  <main id="storefrontView" class="view-section active">
+    <!-- البانر الترويجي -->
+    <section class="promo-hero">
+      <div class="container hero-card">
+        <div class="hero-text">
+          <span class="tag" data-ar="عروض التوفير الأسبوعية" data-en="Weekly Savings Deals">عروض التوفير الأسبوعية</span>
+          <h2 data-ar="أجود المنتجات الغذائية والمؤن الطازجة" data-en="Finest Groceries & Fresh Produce">أجود المنتجات الغذائية والمؤن الطازجة</h2>
+          <p data-ar="توصيل سريع مجاني للطلبات أكثر من 500 جنيه في كافة أنحاء القاهرة" data-en="Fast free delivery on orders over 500 EGP all across Cairo">توصيل سريع مجاني للطلبات أكثر من 500 جنيه في كافة أنحاء القاهرة</p>
+        </div>
+        <div class="hero-sticker">
+          <span class="sticker-val">14%</span>
+          <span class="sticker-lbl" data-ar="ضريبة مشمولة" data-en="VAT Incl.">ضريبة مشمولة</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- شريط تصفية الأقسام -->
+    <section class="container categories-bar">
+      <button class="cat-pill active" onclick="filterCategory('ALL')" data-ar="جميع الأقسام" data-en="All Categories">جميع الأقسام</button>
+      <button class="cat-pill" onclick="filterCategory('DAIRY')" data-ar="الألبان والبيض" data-en="Dairy & Eggs">الألبان والبيض</button>
+      <button class="cat-pill" onclick="filterCategory('PANTRY')" data-ar="المؤن والأرز والزيوت" data-en="Pantry & Oils">المؤن والأرز والزيوت</button>
+      <button class="cat-pill" onclick="filterCategory('MEAT')" data-ar="اللحوم والدواجن" data-en="Meat & Butchery">اللحوم والدواجن</button>
+      <button class="cat-pill" onclick="filterCategory('BEVERAGE')" data-ar="المشروبات والشاي" data-en="Beverages & Tea">المشروبات والشاي</button>
+    </section>
+
+    <!-- شبكة المنتجات -->
+    <section class="container products-section">
+      <div id="productsGrid" class="products-grid">
+        <!-- يتم تعبئة المنتجات تلقائياً عبر JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= واجهة الكاشير ونقطة البيع (POS TERMINAL VIEW) ================= -->
+  <main id="posView" class="view-section">
+    <div class="pos-container">
+      <!-- لوحة الفاتورة الحالية -->
+      <section class="pos-receipt-panel">
+        <div class="pos-header">
+          <div>
+            <h2 data-ar="نقطة البيع السريعة" data-en="POS Cashier Terminal">نقطة البيع السريعة</h2>
+            <p class="pos-meta" data-ar="فرع المعادي | كاشير: أحمد إبراهيم" data-en="Maadi Branch | Cashier: Ahmed Ibrahim">فرع المعادي | كاشير: أحمد إبراهيم</p>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="clearPosCart()" data-ar="إلغاء الفاتورة" data-en="Cancel Bill">إلغاء الفاتورة</button>
+        </div>
+
+        <!-- إدخال الباركود السريع -->
+        <form class="barcode-form" onsubmit="handleBarcodeScan(event)">
+          <input type="text" id="barcodeInput" placeholder="امسح الباركود أو اضغط Enter..." data-ph-ar="امسح الباركود أو اضغط Enter..." data-ph-en="Scan barcode and press Enter..." autofocus />
+          <button type="submit" class="btn btn-primary" data-ar="مسح" data-en="Scan">مسح</button>
+        </form>
+
+        <!-- جدول الأصناف في نقطة البيع -->
+        <div class="pos-table-wrap">
+          <table class="pos-table">
+            <thead>
+              <tr>
+                <th data-ar="الصنف" data-en="Item">الصنف</th>
+                <th data-ar="الكمية" data-en="Qty">الكمية</th>
+                <th data-ar="السعر" data-en="Price">السعر</th>
+                <th data-ar="الإجمالي" data-en="Total">الإجمالي</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="posItemsBody">
+              <!-- أسطر المشتريات -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- تفاصيل الدفع والحساب -->
+        <div class="pos-summary">
+          <div class="summary-row">
+            <span data-ar="الإجمالي المستحق:" data-en="Grand Total:">الإجمالي المستحق:</span>
+            <span id="posTotalAmount" class="highlight-val">0.00 ج.م</span>
+          </div>
+          <div class="pos-payment-actions">
+            <div class="calc-box">
+              <label data-ar="المبلغ المستلم من العميل:" data-en="Cash Received:">المبلغ المستلم من العميل:</label>
+              <input type="number" id="cashReceivedInput" placeholder="0.00" oninput="calcPosChange()" />
+            </div>
+            <div class="calc-box">
+              <label data-ar="المتبقي (الفكة):" data-en="Change Due:">المتبقي (الفكة):</label>
+              <div id="posChangeDue" class="change-val">0.00 ج.م</div>
+            </div>
+          </div>
+          <button class="btn btn-success btn-block" onclick="completePosOrder()" data-ar="إنهاء الفاتورة وطباعة الإيصال (F12)" data-en="Complete Order & Print (F12)">
+            إنهاء الفاتورة وطباعة الإيصال (F12)
+          </button>
+        </div>
+      </section>
+
+      <!-- لوحة الأصناف السريعة للكاشير -->
+      <section class="pos-quick-items">
+        <h3 data-ar="أصناف سريعة النقر" data-en="Quick Pick Items">أصناف سريعة النقر</h3>
+        <div id="posQuickGrid" class="quick-grid">
+          <!-- أزرار الأصناف الأكثر مبيعاً -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- درج سلة المشتريات (Cart Drawer) -->
+  <div id="cartDrawer" class="cart-drawer">
+    <div class="drawer-header">
+      <h3 data-ar="سلة مشترياتك" data-en="Your Cart">سلة مشترياتك</h3>
+      <button class="close-btn" onclick="toggleCartDrawer()">&times;</button>
+    </div>
+    <div id="cartItemsList" class="drawer-items">
+      <!-- عناصر السلة -->
+    </div>
+    <div class="drawer-footer">
+      <div class="summary-row">
+        <span data-ar="المجموع الفرعي:" data-en="Subtotal:">المجموع الفرعي:</span>
+        <span id="drawerSubtotal">0.00 ج.م</span>
+      </div>
+      <div class="summary-row">
+        <span data-ar="شامل القيمة المضافة (14%):" data-en="VAT (14% Included):">شامل القيمة المضافة (14%):</span>
+        <span id="drawerVat">0.00 ج.م</span>
+      </div>
+      <div class="summary-row">
+        <span data-ar="رسوم التوصيل:" data-en="Delivery Fee:">رسوم التوصيل:</span>
+        <span id="drawerDelivery">0.00 ج.م</span>
+      </div>
+      <div class="summary-row total">
+        <span data-ar="الإجمالي النهائي:" data-en="Total Amount:">الإجمالي النهائي:</span>
+        <span id="drawerTotal">0.00 ج.م</span>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="checkoutStoreOrder()" data-ar="تأكيد الطلب والدفع" data-en="Proceed to Checkout">
+        تأكيد الطلب والدفع
+      </button>
+    </div>
+  </div>
+  <div id="drawerOverlay" class="drawer-overlay" onclick="toggleCartDrawer()"></div>
+
+  <!-- التنبيهات السريعة (Toasts) -->
+  <div id="toast" class="toast"></div>
+
+  <!-- المنطق البرمجي الكامل للتحكم والمزامنة -->
+  <script>
+    // قاعدة بيانات الأصناف الحقيقية للسوبرماركت
+    const productsDB = [
+      {
+        id: 1,
+        barcode: "6221007001015",
+        sku: "JUH-MILK-1L",
+        nameAr: "حليب جهينة كامل الدسم معقم 1 لتر",
+        nameEn: "Juhayna Pure Full Cream Milk 1L",
+        category: "DAIRY",
+        brand: "جهينة / Juhayna",
+        price: 44.50,
+        oldPrice: 48.00,
+        unitAr: "عبوة 1 لتر",
+        unitEn: "1L Pack",
+        img: "🥛",
+        stock: 65
+      },
+      {
+        id: 2,
+        barcode: "6223000551020",
+        sku: "DOH-RICE-1KG",
+        nameAr: "أرز مصري فاخر الضحى 1 كجم",
+        nameEn: "El Doha Premium Egyptian Rice 1kg",
+        category: "PANTRY",
+        brand: "الضحى / El Doha",
+        price: 39.00,
+        oldPrice: null,
+        unitAr: "كيس 1 كجم",
+        unitEn: "1kg Bag",
+        img: "🍚",
+        stock: 120
+      },
+      {
+        id: 3,
+        barcode: "6221155008901",
+        sku: "CRY-CORN-1.6L",
+        nameAr: "زيت ذرة كريستال نقي 1.6 لتر",
+        nameEn: "Crystal Pure Corn Oil 1.6L",
+        category: "PANTRY",
+        brand: "كريستال / Crystal",
+        price: 125.00,
+        oldPrice: 138.00,
+        unitAr: "زجاجة 1.6 لتر",
+        unitEn: "1.6L Bottle",
+        img: "🌻",
+        stock: 35
+      },
+      {
+        id: 4,
+        barcode: "6229000123456",
+        sku: "BEEF-CUBES-1KG",
+        nameAr: "مكعبات لحم بقري بلدي طازج 1 كجم",
+        nameEn: "Fresh Baladi Beef Stew Cubes 1kg",
+        category: "MEAT",
+        brand: "مزارع البركة / Al-Barakah",
+        price: 440.00,
+        oldPrice: 470.00,
+        unitAr: "كيلوجرام",
+        unitEn: "Per Kilogram",
+        img: "🥩",
+        stock: 18
+      },
+      {
+        id: 5,
+        barcode: "6224000112233",
+        sku: "AROSA-TEA-250G",
+        nameAr: "شاي أسود ناعم العروسة 250 جم",
+        nameEn: "El Arosa Fine Black Tea 250g",
+        category: "BEVERAGE",
+        brand: "العروسة / El Arosa",
+        price: 52.00,
+        oldPrice: null,
+        unitAr: "عبوة 250 جم",
+        unitEn: "250g Pack",
+        img: "☕",
+        stock: 80
+      },
+      {
+        id: 6,
+        barcode: "6221008003030",
+        sku: "DOM-CHEESE-500G",
+        nameAr: "جبنة دومتي بلس فيتا 500 جم",
+        nameEn: "Domty Plus Feta Cheese 500g",
+        category: "DAIRY",
+        brand: "دومتي / Domty",
+        price: 36.00,
+        oldPrice: 40.00,
+        unitAr: "علبة 500 جم",
+        unitEn: "500g Box",
+        img: "🧀",
+        stock: 45
+      }
+    ];
+
+    let currentLang = 'ar';
+    let currentView = 'storefront';
+    let cart = [];
+    let activeCategory = 'ALL';
+
+    // التهيئة الأولى
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStoreProducts();
+      renderPosQuickItems();
+      updateCartUI();
+    });
+
+    // تبديل اللغة (عربي / إنجليزي)
+    function toggleLanguage() {
+      currentLang = currentLang === 'ar' ? 'en' : 'ar';
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+      // تحديث النصوص الثابتة
+      document.querySelectorAll('[data-ar]').forEach(el => {
+        el.innerText = el.getAttribute(`data-${currentLang}`);
+      });
+
+      // تحديث الـ Placeholders
+      document.querySelectorAll('[data-ph-ar]').forEach(el => {
+        el.setAttribute('placeholder', el.getAttribute(`data-ph-${currentLang}`));
+      });
+
+      document.getElementById('langToggleBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+      renderStoreProducts();
+      updateCartUI();
+      renderPosCartTable();
+    }
+
+    // تبديل العرض بين المتجر والكاشير
+    function toggleView() {
+      const storefront = document.getElementById('storefrontView');
+      const pos = document.getElementById('posView');
+      const viewModeText = document.getElementById('viewModeText');
+
+      if (currentView === 'storefront') {
+        currentView = 'pos';
+        storefront.classList.remove('active');
+        pos.classList.add('active');
+        viewModeText.setAttribute('data-ar', 'عرض المتجر الإلكتروني');
+        viewModeText.setAttribute('data-en', 'Storefront View');
+        viewModeText.innerText = currentLang === 'ar' ? 'عرض المتجر الإلكتروني' : 'Storefront View';
+        document.getElementById('barcodeInput').focus();
+      } else {
+        currentView = 'storefront';
+        pos.classList.remove('active');
+        storefront.classList.add('active');
+        viewModeText.setAttribute('data-ar', 'شاشة الكاشير POS');
+        viewModeText.setAttribute('data-en', 'Cashier POS View');
+        viewModeText.innerText = currentLang === 'ar' ? 'شاشة الكاشير POS' : 'Cashier POS View';
+      }
+    }
+
+    // عرض المنتجات في المتجر
+    function renderStoreProducts() {
+      const grid = document.getElementById('productsGrid');
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      grid.innerHTML = '';
+
+      const filtered = productsDB.filter(p => {
+        const matchesCategory = activeCategory === 'ALL' || p.category === activeCategory;
+        const name = (currentLang === 'ar' ? p.nameAr : p.nameEn).toLowerCase();
+        const matchesSearch = name.includes(searchVal) || p.barcode.includes(searchVal);
+        return matchesCategory && matchesSearch;
+      });
+
+      filtered.forEach(p => {
+        const title = currentLang === 'ar' ? p.nameAr : p.nameEn;
+        const unit = currentLang === 'ar' ? p.unitAr : p.unitEn;
+        const currBadge = currentLang === 'ar' ? 'ج.م' : 'EGP';
+        const cartItem = cart.find(i => i.id === p.id);
+        const qty = cartItem ? cartItem.qty : 0;
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="prod-img">${p.img}</div>
+          <span class="prod-brand">${p.brand}</span>
+          <h4 class="prod-title">${title}</h4>
+          <span class="prod-unit">${unit}</span>
+          <div class="price-row">
+            <div>
+              <span class="prod-price">${p.price.toFixed(2)}</span>
+              <span class="currency">${currBadge}</span>
+              ${p.oldPrice ? `<span class="old-price">${p.oldPrice.toFixed(2)}</span>` : ''}
+            </div>
+            <span class="stock-tag">${currentLang === 'ar' ? 'متوفر' : 'In Stock'}</span>
+          </div>
+          <div class="card-action">
+            ${qty === 0 ? `
+              <button class="btn btn-primary btn-block" onclick="addToCart(${p.id})">
+                ${currentLang === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
+              </button>
+            ` : `
+              <div class="qty-control">
+                <button onclick="updateQty(${p.id}, -1)">-</button>
+                <span>${qty}</span>
+                <button onclick="updateQty(${p.id}, 1)">+</button>
+              </div>
+            `}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // فلترة الأقسام
+    function filterCategory(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderStoreProducts();
+    }
+
+    // البحث اللحظي
+    document.getElementById('searchInput').addEventListener('input', renderStoreProducts);
+
+    // إدارة السلة المشتركة
+    function addToCart(productId) {
+      const product = productsDB.find(p => p.id === productId);
+      if (!product) return;
+
+      const item = cart.find(i => i.id === productId);
+      if (item) {
+        item.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+
+      showToast(currentLang === 'ar' ? `تمت إضافة: ${product.nameAr}` : `Added: ${product.nameEn}`);
+      updateCartUI();
+      renderStoreProducts();
+      renderPosCartTable();
+    }
+
+    function updateQty(productId, change) {
+      const index = cart.findIndex(i => i.id === productId);
+      if (index === -1) return;
+
+      cart[index].qty += change;
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+
+      updateCartUI();
+      renderStoreProducts();
+      renderPosCartTable();
+    }
+
+    function updateCartUI() {
+      const badge = document.getElementById('cartBadge');
+      const totalCount = cart.reduce((acc, i) => acc + i.qty, 0);
+      badge.innerText = totalCount;
+
+      const itemsContainer = document.getElementById('cartItemsList');
+      itemsContainer.innerHTML = '';
+      const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+
+      let subtotal = 0;
+      cart.forEach(item => {
+        subtotal += item.price * item.qty;
+        const title = currentLang === 'ar' ? item.nameAr : item.nameEn;
+        const row = document.createElement('div');
+        row.className = 'cart-item-row';
+        row.innerHTML = `
+          <div class="cart-item-info">
+            <strong>${title}</strong>
+            <small>${item.price.toFixed(2)} ${curr} × ${item.qty}</small>
+          </div>
+          <div class="qty-control small">
+            <button onclick="updateQty(${item.id}, -1)">-</button>
+            <span>${item.qty}</span>
+            <button onclick="updateQty(${item.id}, 1)">+</button>
+          </div>
+        `;
+        itemsContainer.appendChild(row);
+      });
+
+      const vat = subtotal - (subtotal / 1.14);
+      const delivery = subtotal >= 500 || subtotal === 0 ? 0 : 35;
+      const total = subtotal + delivery;
+
+      document.getElementById('drawerSubtotal').innerText = `${subtotal.toFixed(2)} ${curr}`;
+      document.getElementById('drawerVat').innerText = `${vat.toFixed(2)} ${curr}`;
+      document.getElementById('drawerDelivery').innerText = delivery === 0 ? (currentLang === 'ar' ? 'مجاني' : 'Free') : `${delivery.toFixed(2)} ${curr}`;
+      document.getElementById('drawerTotal').innerText = `${total.toFixed(2)} ${curr}`;
+    }
+
+    function toggleCartDrawer() {
+      document.getElementById('cartDrawer').classList.toggle('open');
+      document.getElementById('drawerOverlay').classList.toggle('open');
+    }
+
+    // منطق الكاشير ونقطة البيع (POS)
+    function renderPosQuickItems() {
+      const grid = document.getElementById('posQuickGrid');
+      grid.innerHTML = '';
+      productsDB.forEach(p => {
+        const title = currentLang === 'ar' ? p.nameAr : p.nameEn;
+        const btn = document.createElement('button');
+        btn.className = 'quick-item-btn';
+        btn.innerHTML = `
+          <div class="icon">${p.img}</div>
+          <div class="name">${title}</div>
+          <div class="price">${p.price.toFixed(2)} ج.م</div>
+        `;
+        btn.onclick = () => addToCart(p.id);
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderPosCartTable() {
+      const tbody = document.getElementById('posItemsBody');
+      tbody.innerHTML = '';
+      let total = 0;
+
+      cart.forEach(item => {
+        const lineTotal = item.price * item.qty;
+        total += lineTotal;
+        const title = currentLang === 'ar' ? item.nameAr : item.nameEn;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${title}</strong><br><small class="barcode-label">${item.barcode}</small></td>
+          <td>
+            <div class="qty-control small">
+              <button onclick="updateQty(${item.id}, -1)">-</button>
+              <span>${item.qty}</span>
+              <button onclick="updateQty(${item.id}, 1)">+</button>
+            </div>
+          </td>
+          <td>${item.price.toFixed(2)}</td>
+          <td><strong>${lineTotal.toFixed(2)}</strong></td>
+          <td><button class="delete-btn" onclick="updateQty(${item.id}, -${item.qty})">&times;</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('posTotalAmount').innerText = `${total.toFixed(2)} ${currentLang === 'ar' ? 'ج.م' : 'EGP'}`;
+      calcPosChange();
+    }
+
+    function handleBarcodeScan(e) {
+      e.preventDefault();
+      const code = document.getElementById('barcodeInput').value.trim();
+      if (!code) return;
+
+      const product = productsDB.find(p => p.barcode === code || p.sku.toLowerCase() === code.toLowerCase());
+      if (product) {
+        addToCart(product.id);
+        document.getElementById('barcodeInput').value = '';
+      } else {
+        alert(currentLang === 'ar' ? 'الصنف غير مسجل بالباركود المدخل' : 'Barcode item not found');
+      }
+    }
+
+    function calcPosChange() {
+      const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+      const received = parseFloat(document.getElementById('cashReceivedInput').value) || 0;
+      const change = received >= total && total > 0 ? received - total : 0;
+      document.getElementById('posChangeDue').innerText = `${change.toFixed(2)} ${currentLang === 'ar' ? 'ج.م' : 'EGP'}`;
+    }
+
+    function clearPosCart() {
+      if (confirm(currentLang === 'ar' ? 'هل تريد تفريغ الفاتورة بالكامل؟' : 'Clear current transaction?')) {
+        cart = [];
+        updateCartUI();
+        renderStoreProducts();
+        renderPosCartTable();
+      }
+    }
+
+    function completePosOrder() {
+      if (cart.length === 0) {
+        alert(currentLang === 'ar' ? 'الفاتورة فارغة!' : 'Cart is empty!');
+        return;
+      }
+      alert(currentLang === 'ar' ? 'تم حفظ الفاتورة وطباعة الإيصال بنجاح ✓' : 'Transaction completed and printed ✓');
+      cart = [];
+      document.getElementById('cashReceivedInput').value = '';
+      updateCartUI();
+      renderStoreProducts();
+      renderPosCartTable();
+    }
+
+    function checkoutStoreOrder() {
+      if (cart.length === 0) {
+        alert(currentLang === 'ar' ? 'السلة فارغة' : 'Cart is empty');
+        return;
+      }
+      alert(currentLang === 'ar' ? 'شكراً لطلبك من أسواق البركة! جاري تحضير شحنتك للتوصيل السريع.' : 'Thank you for shopping with Al-Barakah! Preparing your order.');
+      cart = [];
+      toggleCartDrawer();
+      updateCartUI();
+      renderStoreProducts();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
