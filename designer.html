@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تواصل مع مصمم النظام | م. أحمد محمد حسني</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="designer-body">
+
+  <div class="designer-card-wrapper">
+    <!-- زر العودة للمتجر -->
+    <div class="back-nav">
+      <a href="index.html" class="btn-secondary">← العودة لمتجر أسواق البركة</a>
+    </div>
+
+    <!-- بطاقة التعريف الاحترافية بالمصمم -->
+    <div class="designer-profile-card">
+      <div class="designer-avatar">👨‍💻</div>
+      <div class="designer-meta">
+        <h2>م. أحمد محمد حسني</h2>
+        <span class="role-pill">Full-Stack Engineer & UI/UX Product Designer</span>
+        <p class="designer-bio">
+          مطور ومصمم نظم التجزئة والتجارة الإلكترونية المتكاملة، متخصص في بناء منصات الويب السريعة (PWAs)، نقاط البيع السحابية (POS)، وواجهات المستخدم الحديثة عالية الأداء.
+        </p>
+        <div class="contact-badges">
+          <span class="badge-item">📍 القاهرة، مصر</span>
+          <span class="badge-item">✉️ ahmedmohamedhosny100@gmail.com</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- استمارة المراسلة الرسمية الموجهة لإيميلك مباشرة -->
+    <div class="contact-form-panel">
+      <h3>إرسال رسالة أو طلب مشروع جديد 📬</h3>
+      <p class="form-desc">املأ البيانات أدناه وسيتم تحويل رسالتك مباشرة وبشكل آمن إلى البريد الإلكتروني الخاص بي وسأرد عليك في أقرب وقت.</p>
+
+      <!-- الاستمارة موجهة مباشرة إلى إيميلك عبر FormSubmit API -->
+      <form action="https://formsubmit.co/ahmedmohamedhosny100@gmail.com" method="POST" class="official-contact-form">
+        <!-- إعدادات تلقائية لمنع السبام وإعادة التوجيه -->
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_subject" value="رسالة رسمية جديدة من منصة أسواق البركة!" />
+        <input type="hidden" name="_template" value="table" />
+
+        <div class="form-grid-row">
+          <div class="input-field">
+            <label>الاسم الكامل:</label>
+            <input type="text" name="name" required placeholder="مثال: م. مصطفى كامل" />
+          </div>
+          <div class="input-field">
+            <label>رقم الهاتف / واتساب:</label>
+            <input type="tel" name="phone" required placeholder="01012345678" />
+          </div>
+        </div>
+
+        <div class="input-field">
+          <label>البريد الإلكتروني للرد عليك:</label>
+          <input type="email" name="email" required placeholder="client@company.com" />
+        </div>
+
+        <div class="input-field">
+          <label>نوع الطلب / الاستفسار:</label>
+          <select name="service_type">
+            <option value="POS System">طلب تخصيص نظام نقطة بيع وكاشير (POS)</option>
+            <option value="Ecommerce Platform">بناء متجر إلكتروني سوبرماركت متكامل</option>
+            <option value="UI UX Redesign">إعادة تصميم وتطوير واجهات مستخدم (UI/UX)</option>
+            <option value="Other Inquiries">استفسار تجاري عام أو توظيف</option>
+          </select>
+        </div>
+
+        <div class="input-field">
+          <label>نص الرسالة أو تفاصيل المشروع:</label>
+          <textarea name="message" rows="5" required placeholder="اكتب تفاصيل طلبك بدقة، وسأقوم بدراستها والتواصل معك مباشرة..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary btn-submit-message">
+          🚀 إرسال الرسالة إلى البريد الإلكتروني مباشرة
+        </button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
